@@ -1,0 +1,32 @@
+{
+  "title": [
+    {
+      "pattern": "^(build|ci|docs|feat|fix|perf|refactor|style|test|chore|revert): ",
+      "message": "Expected title prefix: build|ci|docs|feat|fix|perf|refactor|style|test|chore|revert"
+    },
+    {
+      "pattern": "[A-Z]+-[0-9]+(: .+)+",
+      "message": "Expected JIRA ticket format [project]-[number]: [title]"
+    },
+    {
+      "pattern": "([A-Z]+-[0-9]+: ((?![\n',]).)+)+$",
+      "message": "JIRA title should not contain single quote, comma or newline"
+    },
+    {
+      "pattern": "^(build|ci|docs|feat|fix|perf|refactor|style|test|chore|revert): [A-Z]+-[0-9]+(: ((?![\n',]|[A-Z]+-[0-9]+).)+)+(, [A-Z]+-[0-9]+(: ((?![\n',]|[A-Z]+-[0-9]+).)+))*$",
+      "message": "JIRA ticket should be separated by ', '"
+    }
+  ],
+  "body": [
+    {
+      "pattern": ".{1,}",
+      "message": "You need literally anything in your pull request description."
+    }
+  ],
+  "head.ref": [
+    {
+      "pattern": "^(build|ci|docs|feat|feature|fix|perf|refactor|style|test|chore|revert|inf)\/[A-Z]+-[0-9]+$",
+      "message": "Expected branch name format: [type]/[JIRA ticket] e.g. inf/MOB-123, feature/CET-XXX, fix/DET-XXX, hotfix/EPT-XX"
+    }
+  ]
+}

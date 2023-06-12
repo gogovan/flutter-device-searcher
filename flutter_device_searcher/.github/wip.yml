@@ -1,0 +1,10 @@
+locations:
+  - title
+  - label_name
+terms:
+  - do not merge
+  - wip
+  - work in progress
+  - blocked by coresdk
+  - blocked by platform
+  - blocked by 3rd party
