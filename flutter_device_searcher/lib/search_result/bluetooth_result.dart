@@ -1,7 +1,8 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter_device_searcher/search_result/device_search_result.dart';
 
 @immutable
-class BluetoothResult {
+class BluetoothResult implements DeviceSearchResult {
   const BluetoothResult(this.address);
 
   final String address;
