@@ -1,4 +1,4 @@
-package hk.gogovan.flutter_label_printer
+package hk.gogovan.flutter_device_searcher
 
 /**
  * Exceptions to be relayed to Flutter side. Refer to Flutter side exception_codes.dart for error codes to use.

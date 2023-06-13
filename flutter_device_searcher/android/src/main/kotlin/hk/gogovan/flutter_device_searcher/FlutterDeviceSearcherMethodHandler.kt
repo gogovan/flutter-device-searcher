@@ -1,38 +1,17 @@
-package hk.gogovan.flutter_label_printer
+package hk.gogovan.flutter_device_searcher
 
 import android.content.Context
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
-import cpcl.PrinterHelper
-import hk.gogovan.flutter_label_printer.searcher.BluetoothSearcher
-import hk.gogovan.flutter_label_printer.util.Log
+import hk.gogovan.flutter_device_searcher.util.Log
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
-import java.lang.Integer.max
-import java.lang.Integer.min
 
-class FlutterLabelPrinterMethodHandler(
+class FlutterDeviceSearcherMethodHandler(
     private val context: Context,
     private val bluetoothSearcher: BluetoothSearcher?,
 ) : MethodChannel.MethodCallHandler {
-    companion object {
-        const val SHARED_PREF_NAME = "hk.gogovan.label_printer.flutter_label_printer"
-        const val SHARED_PREF_PAPER_TYPE = "paper_type"
-    }
-
-    private var currentPaperType: Int? = null
-
-    private var paperTypeSet = false
-    private var areaSizeSet = false
-
     private val log = Log()
 
     override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) {
-        if (currentPaperType == null) {
-            val pref = context.getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE)
-            currentPaperType = pref.getInt(SHARED_PREF_PAPER_TYPE, 0)
-        }
-
         try {
             when (call.method) {
                 "hk.gogovan.label_printer.setLogLevel" -> {
@@ -52,6 +31,7 @@ class FlutterLabelPrinterMethodHandler(
                     result.success(response)
                 }
                 "hk.gogovan.label_printer.connectHMA300L" -> {
+/*
                     if (PrinterHelper.IsOpened()) {
                         result.error(
                             "1005",
@@ -95,8 +75,11 @@ class FlutterLabelPrinterMethodHandler(
                             }
                         }
                     }
+
+ */
                 }
                 "hk.gogovan.label_printer.disconnectHMA300L" -> {
+                    /*
                     if (!PrinterHelper.IsOpened()) {
                         result.error(
                             "1005",
@@ -106,6 +89,8 @@ class FlutterLabelPrinterMethodHandler(
                     } else {
                         result.success(PrinterHelper.portClose())
                     }
+
+                     */
                 }
                 else -> {
                     result.notImplemented()

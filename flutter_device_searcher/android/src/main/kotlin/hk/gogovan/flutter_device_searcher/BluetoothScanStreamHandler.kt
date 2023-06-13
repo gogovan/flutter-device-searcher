@@ -1,9 +1,8 @@
-package hk.gogovan.flutter_label_printer
+package hk.gogovan.flutter_device_searcher
 
 import android.app.Activity
 import android.os.Handler
 import android.os.Looper
-import hk.gogovan.flutter_label_printer.searcher.BluetoothSearcher
 import io.flutter.plugin.common.EventChannel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers

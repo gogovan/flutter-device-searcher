@@ -1,10 +1,9 @@
-package hk.gogovan.flutter_label_printer.searcher
+package hk.gogovan.flutter_device_searcher
 
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.bluetooth.BluetoothAdapter
-import android.bluetooth.BluetoothClass
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothManager
 import android.content.BroadcastReceiver
@@ -15,9 +14,8 @@ import android.content.pm.PackageManager
 import android.os.Handler
 import android.os.Looper
 import androidx.core.app.ActivityCompat
-import hk.gogovan.flutter_label_printer.PluginException
-import hk.gogovan.flutter_label_printer.util.ResultOr
-import hk.gogovan.flutter_label_printer.util.checkSelfPermissions
+import hk.gogovan.flutter_device_searcher.util.ResultOr
+import hk.gogovan.flutter_device_searcher.util.checkSelfPermissions
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -69,8 +67,10 @@ class BluetoothSearcher(private val context: Context) : Closeable {
                 return
             }
 
-            coroutineScope.launch {
-                foundDevice.emit(device)
+            if (device != null) {
+                coroutineScope.launch {
+                    foundDevice.emit(device)
+                }
             }
         }
     }
