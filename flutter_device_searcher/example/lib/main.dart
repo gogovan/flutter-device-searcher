@@ -33,8 +33,9 @@ class _MyAppState extends State<MyApp> {
         ),
         body: Column(
           children: [
-            ElevatedButton(child: Text('Search Bluetooth'), onPressed: _searchBluetooth),
+            ElevatedButton(child: Text('Search for Bluetooth'), onPressed: _searchBluetooth),
             Text(searchedBtResult.toString()),
+            ElevatedButton(child: Text('Stop Searching for Bluetooth'), onPressed: _stopSearchBluetooth),
           ],
         ),
       ),
@@ -47,5 +48,9 @@ class _MyAppState extends State<MyApp> {
         searchedBtResult = event;
       });
     });
+  }
+
+  Future<void> _stopSearchBluetooth() async {
+    await btSearcher.stopSearch();
   }
 }
