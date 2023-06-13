@@ -25,7 +25,15 @@ class BluetoothScanStreamHandler(
                 bluetoothSearcher?.scan(currentActivity)?.collect { valueOrError ->
                     Handler(Looper.getMainLooper()).post {
                         if (valueOrError.value != null) {
-                            events?.success(valueOrError.value)
+                            val devices = valueOrError.value
+                            val result = devices.map { d ->
+                                mapOf<String, String>(
+                                    "address" to d.address,
+                                    "name" to d.name,
+                                )
+                            }
+
+                            events?.success(result)
                         } else {
                             if (valueOrError.error is PluginException) {
                                 events?.error(

@@ -48,7 +48,7 @@ class BluetoothSearcher(private val context: Context) : Closeable {
     private val pluginExceptionFlow = MutableSharedFlow<PluginException>()
     private val foundDevice = MutableSharedFlow<BluetoothDevice>()
 
-    private val discoveredBluetoothDevices = mutableSetOf<String>()
+    private val discoveredBluetoothDevices = mutableMapOf<String, BluetoothDevice>()
 
     inner class OnBluetoothFound : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
@@ -91,11 +91,11 @@ class BluetoothSearcher(private val context: Context) : Closeable {
         }
     }
 
-    suspend fun scan(activity: Activity?): Flow<ResultOr<List<String>>> {
+    suspend fun scan(activity: Activity?): Flow<ResultOr<List<BluetoothDevice>>> {
         try {
             checkBluetoothCapability()
 
-            val resultFlow = MutableSharedFlow<ResultOr<List<String>>>()
+            val resultFlow = MutableSharedFlow<ResultOr<List<BluetoothDevice>>>()
 
             if (activity == null) {
                 throw PluginException(1003, "No current activity")
@@ -145,16 +145,15 @@ class BluetoothSearcher(private val context: Context) : Closeable {
                 foundDevice.collect {
                     val result = it.address
                     if (result != null) {
-                        discoveredBluetoothDevices.add(result)
-                        val toSend = discoveredBluetoothDevices.toList()
-                        resultFlow.emit(ResultOr(toSend))
+                        discoveredBluetoothDevices[result] = it
+                        resultFlow.emit(ResultOr(discoveredBluetoothDevices.values.toList()))
                     }
                 }
             }
 
             return resultFlow
         } catch (ex: Throwable) {
-            val resultFlow = MutableSharedFlow<ResultOr<List<String>>>()
+            val resultFlow = MutableSharedFlow<ResultOr<List<BluetoothDevice>>>()
             coroutineScope.launch {
                 resultFlow.emit(ResultOr(ex))
             }

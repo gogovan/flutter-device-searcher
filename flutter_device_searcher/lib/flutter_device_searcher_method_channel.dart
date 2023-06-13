@@ -19,13 +19,16 @@ class MethodChannelFlutterDeviceSearcher extends FlutterDeviceSearcherPlatform {
   @override
   Stream<List<BluetoothResult>> searchBluetooth() =>
       _scanBluetoothEventChannel.receiveBroadcastStream().map(
-            (event) => (event as List<dynamic>)
-                .map(
-                  (e) => BluetoothResult(
-                    e.toString(),
-                  ),
-                )
-                .toList(),
+            (event) => (event as List<dynamic>).map(
+              (e) {
+                final data = e as Map<dynamic, dynamic>;
+
+                return BluetoothResult(
+                  address: data['address'],
+                  name: data['name'],
+                );
+              },
+            ).toList(),
           );
 
   @override
