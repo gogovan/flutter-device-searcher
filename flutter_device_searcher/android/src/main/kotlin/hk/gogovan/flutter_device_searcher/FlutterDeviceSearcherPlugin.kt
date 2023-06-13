@@ -29,10 +29,10 @@ class FlutterDeviceSearcherPlugin : FlutterPlugin, MethodCallHandler, ActivityAw
 
         bluetoothSearcher = BluetoothSearcher(context)
         bluetoothScanStreamHandler = BluetoothScanStreamHandler(bluetoothSearcher)
-        methodHandler = FlutterDeviceSearcherMethodHandler(context, bluetoothSearcher)
+        methodHandler = FlutterDeviceSearcherMethodHandler(bluetoothSearcher)
 
         channel =
-            MethodChannel(flutterPluginBinding.binaryMessenger, "hk.gogovan.flutter_device_searcher.flutter_label_printer")
+            MethodChannel(flutterPluginBinding.binaryMessenger, "hk.gogovan.flutter_device_searcher")
         channel.setMethodCallHandler(methodHandler)
 
         bluetoothScanChannel =

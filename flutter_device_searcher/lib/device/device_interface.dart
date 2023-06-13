@@ -3,11 +3,11 @@ import 'package:flutter_device_searcher/search_result/device_search_result.dart'
 
 /// Interface all connectable devices should implement.
 abstract class DeviceInterface {
-  DeviceInterface(this.device);
+  DeviceInterface(this.searchResult);
 
   /// PrinterSearchResult indicating the device this instance is representing.
   @protected
-  DeviceSearchResult device;
+  DeviceSearchResult searchResult;
 
   bool _connected = false;
 
@@ -21,7 +21,7 @@ abstract class DeviceInterface {
   @nonVirtual
   Future<bool> connect() async {
     if (!_connected) {
-      final result = await connectImpl(device);
+      final result = await connectImpl(searchResult);
       _connected = true;
 
       return result;

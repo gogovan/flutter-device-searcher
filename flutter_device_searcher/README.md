@@ -12,9 +12,7 @@ defaultConfig {
     // ...
 }
 ```
-2. Request required permissions according to OS and technology. [Permission Handler](https://pub.dev/packages/permission_handler) is recommended for handling permissions in Flutter.
-
-## Permission instructions
+2. Setup required permissions according to OS and technology:
 
 ### Bluetooth
 #### Android

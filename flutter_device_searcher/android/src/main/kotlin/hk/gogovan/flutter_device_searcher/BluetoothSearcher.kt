@@ -200,6 +200,10 @@ class BluetoothSearcher(private val context: Context) : Closeable {
         }
     }
 
+    fun getDevice(address: String): BluetoothDevice {
+        return btManager.adapter.getRemoteDevice(address);
+    }
+
     fun stopScan(): Boolean {
         return if (context.checkSelfPermissions(getScanningPermissions()) != PackageManager.PERMISSION_GRANTED) {
             throw PluginException(1002, "Bluetooth permission denied")

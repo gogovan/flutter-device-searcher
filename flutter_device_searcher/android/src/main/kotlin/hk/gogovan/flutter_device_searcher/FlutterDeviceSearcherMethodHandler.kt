@@ -1,45 +1,36 @@
 package hk.gogovan.flutter_device_searcher
 
+import android.bluetooth.BluetoothSocket
 import android.content.Context
 import hk.gogovan.flutter_device_searcher.util.Log
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
+import java.util.*
 
 class FlutterDeviceSearcherMethodHandler(
-    private val context: Context,
     private val bluetoothSearcher: BluetoothSearcher?,
 ) : MethodChannel.MethodCallHandler {
     private val log = Log()
 
+    private var socket: BluetoothSocket? = null
+
     override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) {
         try {
             when (call.method) {
-                "hk.gogovan.label_printer.setLogLevel" -> {
-                    try {
-                        val level = call.argument<Int>("level") ?: 2
-                        log.setLogLevel(level)
-                    } catch (e: ClassCastException) {
-                        result.error(
-                            "1009",
-                            "Unable to extract arguments",
-                            Throwable().stackTraceToString()
-                        )
-                    }
-                }
-                "hk.gogovan.label_printer.stopSearchHMA300L" -> {
+                "hk.gogovan.flutter_device_searcher.stopSearchBluetooth" -> {
                     val response = bluetoothSearcher?.stopScan()
                     result.success(response)
                 }
-                "hk.gogovan.label_printer.connectHMA300L" -> {
-/*
-                    if (PrinterHelper.IsOpened()) {
+                "hk.gogovan.flutter_device_searcher.connectBluetooth" -> {
+                    if (socket?.isConnected == true) {
                         result.error(
                             "1005",
-                            "Printer already connected.",
+                            "Device already connected.",
                             Throwable().stackTraceToString()
                         )
                     } else {
                         val address = call.argument<String>("address")
+                        val uuid = call.argument<String>("uuid") ?: "00001101-0000-1000-8000-00805F9B34FB"
                         if (address == null) {
                             result.error(
                                 "1000",
@@ -47,25 +38,26 @@ class FlutterDeviceSearcherMethodHandler(
                                 Throwable().stackTraceToString()
                             )
                         } else {
-                            when (PrinterHelper.portOpenBT(context, address)) {
-                                0 -> {
-                                    result.success(true)
-                                }
-                                -1 -> {
-                                    result.error(
-                                        "1008",
-                                        "Connection timed out.",
-                                        Throwable().stackTraceToString()
-                                    )
-                                }
-                                -2 -> {
-                                    result.error(
-                                        "1007",
-                                        "Bluetooth address incorrect.",
-                                        Throwable().stackTraceToString()
-                                    )
-                                }
-                                else -> {
+                            val device = bluetoothSearcher?.getDevice(address)
+                            if (device == null) {
+                                result.error(
+                                    "1007",
+                                    "Bluetooth address incorrect.",
+                                    Throwable().stackTraceToString()
+                                )
+                            } else {
+                                try {
+                                    socket = device.createInsecureRfcommSocketToServiceRecord(UUID.fromString(uuid))
+                                    try {
+                                        socket?.connect()
+                                    } catch (ex: Exception) {
+                                        result.error(
+                                            "1008",
+                                            "Connection timed out.",
+                                            Throwable().stackTraceToString()
+                                        )
+                                    }
+                                } catch (ex: Exception) {
                                     result.error(
                                         "1006",
                                         "Connection error.",
@@ -75,22 +67,17 @@ class FlutterDeviceSearcherMethodHandler(
                             }
                         }
                     }
-
- */
                 }
-                "hk.gogovan.label_printer.disconnectHMA300L" -> {
-                    /*
-                    if (!PrinterHelper.IsOpened()) {
+                "hk.gogovan.flutter_device_searcher.disconnectBluetooth" -> {
+                    if (socket?.isConnected != true) {
                         result.error(
                             "1005",
-                            "Printer not connected.",
+                            "Device is not connected.",
                             Throwable().stackTraceToString()
                         )
                     } else {
-                        result.success(PrinterHelper.portClose())
+                        socket?.close()
                     }
-
-                     */
                 }
                 else -> {
                     result.notImplemented()
