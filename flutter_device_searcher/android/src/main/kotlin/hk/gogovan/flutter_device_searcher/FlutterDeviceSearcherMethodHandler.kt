@@ -17,6 +17,18 @@ class FlutterDeviceSearcherMethodHandler(
     override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) {
         try {
             when (call.method) {
+                "hk.gogovan.flutter_device_searcher.setLogLevel" -> {
+                    try {
+                        val level = call.argument<Int>("level") ?: 2
+                        log.setLogLevel(level)
+                    } catch (e: ClassCastException) {
+                        result.error(
+                            "1009",
+                            "Unable to extract arguments",
+                            Throwable().stackTraceToString()
+                        )
+                    }
+                }
                 "hk.gogovan.flutter_device_searcher.stopSearchBluetooth" -> {
                     val response = bluetoothSearcher?.stopScan()
                     result.success(response)

@@ -24,7 +24,8 @@ class _MyAppState extends State<MyApp> {
 
   bool _searching = false;
   var searchedBtResult = <DeviceSearchResult>[];
-  String connectedBtResult = "Pending connection";
+  String connectedBtResult = "Pending connection...";
+  String error = "";
 
   @override
   void initState() {
@@ -46,6 +47,7 @@ class _MyAppState extends State<MyApp> {
         ),
         body: Column(
           children: [
+            Text(error, style: TextStyle(color: Colors.red)),
             ElevatedButton(child: Text('Search for Bluetooth'), onPressed: _searchBluetooth),
             Text('Searching = $_searching'),
             Text(searchedBtResult.toString()),
@@ -72,33 +74,50 @@ class _MyAppState extends State<MyApp> {
       _searching = true;
     });
 
-    btSearcher.search().listen((event) {
-      setState(() {
-        searchedBtResult = event;
+    try {
+      btSearcher.search().listen((event) {
+        setState(() {
+          searchedBtResult = event;
+        });
       });
-    });
+    } catch (ex) {
+      error = ex.toString();
+    }
   }
 
   Future<void> _stopSearchBluetooth() async {
-    await btSearcher.stopSearch();
+    try {
+      await btSearcher.stopSearch();
+    } catch (ex) {
+      error = ex.toString();
+    }
     setState(() {
       _searching = false;
     });
   }
 
   Future<void> _connectBluetooth() async {
-    final index = int.parse(connectIndexController.text);
-    btDevice = BluetoothDevice(searchedBtResult[index]);
-    await btDevice?.connect();
-    setState(() {
-      connectedBtResult = "connected to device ${searchedBtResult[index]}";
-    });
+    try {
+      final index = int.parse(connectIndexController.text);
+      btDevice = BluetoothDevice(searchedBtResult[index]);
+      await btDevice?.connect();
+
+      setState(() {
+        connectedBtResult = "connected to device $index";
+      });
+    } catch (ex) {
+      error = ex.toString();
+    }
   }
 
   Future<void> _disconnectBluetooth() async {
-    await btDevice?.disconnect();
-    setState(() {
-      connectedBtResult = "Disconnected from device";
-    });
+    try {
+      await btDevice?.disconnect();
+      setState(() {
+        connectedBtResult = "Disconnected from device";
+      });
+    } catch (ex) {
+      error = ex.toString();
+    }
   }
 }

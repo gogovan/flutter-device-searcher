@@ -25,6 +25,10 @@ abstract class FlutterDeviceSearcherPlatform extends PlatformInterface {
     _instance = instance;
   }
 
+  Future<bool> setLogLevel() {
+    throw UnimplementedError('setLogLevel() has not been implemented.');
+  }
+
   Stream<List<BluetoothResult>> searchBluetooth() {
     throw UnimplementedError('searchBluetooth() has not been implemented.');
   }

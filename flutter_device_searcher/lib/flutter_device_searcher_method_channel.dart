@@ -9,22 +9,39 @@ class MethodChannelFlutterDeviceSearcher extends FlutterDeviceSearcherPlatform {
   /// The method channel used to interact with the native platform.
   @visibleForTesting
   final methodChannel = const MethodChannel(
-    'hk.gogovan.flutter_device_searcher',);
+    'hk.gogovan.flutter_device_searcher',
+  );
 
   final _scanBluetoothEventChannel = const EventChannel(
-    'hk.gogovan.flutter_device_searcher.bluetoothScan',);
+    'hk.gogovan.flutter_device_searcher.bluetoothScan',
+  );
 
   @override
   Stream<List<BluetoothResult>> searchBluetooth() =>
       _scanBluetoothEventChannel.receiveBroadcastStream().map(
-            (event) =>
-            (event as List<dynamic>).map((e) => BluetoothResult(e.toString())).toList(),
-      );
+            (event) => (event as List<dynamic>)
+                .map(
+                  (e) => BluetoothResult(
+                    e.toString(),
+                  ),
+                )
+                .toList(),
+          );
+
+  @override
+  Future<bool> setLogLevel() async {
+    final result = await methodChannel.invokeMethod<bool>(
+      'hk.gogovan.flutter_device_searcher.setLogLevel',
+    );
+
+    return result ?? false;
+  }
 
   @override
   Future<bool> stopSearchBluetooth() async {
-    final result = await methodChannel
-        .invokeMethod<bool>('hk.gogovan.flutter_device_searcher.stopSearchBluetooth');
+    final result = await methodChannel.invokeMethod<bool>(
+      'hk.gogovan.flutter_device_searcher.stopSearchBluetooth',
+    );
 
     return result ?? false;
   }
@@ -43,8 +60,8 @@ class MethodChannelFlutterDeviceSearcher extends FlutterDeviceSearcherPlatform {
 
   @override
   Future<bool> disconnectBluetooth() async {
-    final result = await methodChannel
-        .invokeMethod<bool>('hk.gogovan.flutter_device_searcher.disconnectBluetooth');
+    final result = await methodChannel.invokeMethod<bool>(
+        'hk.gogovan.flutter_device_searcher.disconnectBluetooth');
 
     return result ?? false;
   }
