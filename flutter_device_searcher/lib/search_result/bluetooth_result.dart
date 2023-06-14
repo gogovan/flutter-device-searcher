@@ -3,9 +3,9 @@ import 'package:flutter_device_searcher/search_result/device_search_result.dart'
 
 @immutable
 class BluetoothResult implements DeviceSearchResult {
-  const BluetoothResult({this.address, this.name});
+  const BluetoothResult({required this.address, this.name});
 
-  final String? address;
+  final String address;
   final String? name;
 
   @override
