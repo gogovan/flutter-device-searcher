@@ -88,7 +88,36 @@ class FlutterDeviceSearcherMethodHandler(
                             Throwable().stackTraceToString()
                         )
                     } else {
+                        socket?.inputStream?.close()
+                        socket?.outputStream?.close()
                         socket?.close()
+                    }
+                }
+                "hk.gogovan.flutter_device_searcher.getInput" -> {
+                    if (socket?.isConnected != true) {
+                        result.error(
+                            "1005",
+                            "Device is not connected.",
+                            Throwable().stackTraceToString()
+                        )
+                    } else {
+                        val length = call.argument<Int>("length") ?: 0
+                        val bytes = ByteArray(length)
+                        socket?.inputStream?.read(bytes)
+                        result.success(bytes)
+                    }
+                }
+                "hk.gogovan.flutter_device_searcher.getOutput" -> {
+                    if (socket?.isConnected != true) {
+                        result.error(
+                            "1005",
+                            "Device is not connected.",
+                            Throwable().stackTraceToString()
+                        )
+                    } else {
+                        val bytes = call.argument<ByteArray>("bytes") ?: ByteArray(0)
+                        socket?.outputStream?.write(bytes)
+                        result.success(true)
                     }
                 }
                 else -> {

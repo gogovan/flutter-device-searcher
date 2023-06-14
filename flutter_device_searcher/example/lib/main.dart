@@ -20,12 +20,13 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   final btSearcher = BluetoothSearcher();
   final connectIndexController = TextEditingController();
+  final writeController = TextEditingController();
   BluetoothDevice? btDevice;
 
   bool _searching = false;
   var searchedBtResult = <DeviceSearchResult>[];
   String connectedBtResult = "Pending connection...";
-  String error = "";
+  var readResult = "Read Result";
 
   @override
   void initState() {
@@ -45,25 +46,53 @@ class _MyAppState extends State<MyApp> {
         appBar: AppBar(
           title: const Text('Plugin example app'),
         ),
-        body: Column(
-          children: [
-            Text(error, style: TextStyle(color: Colors.red)),
-            ElevatedButton(child: Text('Search for Bluetooth'), onPressed: _searchBluetooth),
-            Text('Searching = $_searching'),
-            Text(searchedBtResult.toString()),
-            ElevatedButton(child: Text('Stop Searching for Bluetooth'), onPressed: _stopSearchBluetooth),
-            TextField(
-              decoration: const InputDecoration(
-                hintText:
-                'Index of Search result to Connect Bluetooth to',
+        body: SingleChildScrollView(
+          child: Column(
+            children: [
+              ElevatedButton(
+                  onPressed: _searchBluetooth,
+                  child: const Text('Search for Bluetooth')),
+              Text('Searching = $_searching'),
+              Text(searchedBtResult.map((e) => "$e\n").toString()),
+              ElevatedButton(
+                  onPressed: _stopSearchBluetooth,
+                  child: const Text('Stop Searching for Bluetooth')),
+              TextField(
+                decoration: const InputDecoration(
+                  hintText: 'Index of Search result to Connect Bluetooth to',
+                ),
+                keyboardType: TextInputType.number,
+                controller: connectIndexController,
               ),
-              keyboardType: TextInputType.number,
-              controller: connectIndexController,
-            ),
-            ElevatedButton(child: Text('Connect Bluetooth'), onPressed: _connectBluetooth),
-            ElevatedButton(child: Text('Disconnect Bluetooth'), onPressed: _disconnectBluetooth),
-            Text(connectedBtResult),
-          ],
+              ElevatedButton(
+                  onPressed: _connectBluetooth,
+                  child: const Text('Connect Bluetooth')),
+              ElevatedButton(
+                  onPressed: _disconnectBluetooth,
+                  child: const Text('Disconnect Bluetooth')),
+              Text(connectedBtResult),
+              Row(
+                children: [
+                  SizedBox(
+                    width: 200,
+                    child: TextField(
+                      decoration: const InputDecoration(
+                        hintText: 'Write bytes',
+                      ),
+                      controller: writeController,
+                    ),
+                  ),
+                  ElevatedButton(onPressed: _write, child: const Text('Write')),
+                ],
+              ),
+              Row(
+                children: [
+                  ElevatedButton(onPressed: _read, child: const Text('Read')),
+                  Text(readResult),
+                ],
+              )
+            ],
+          ),
         ),
       ),
     );
@@ -81,7 +110,9 @@ class _MyAppState extends State<MyApp> {
         });
       });
     } catch (ex) {
-      error = ex.toString();
+      setState(() {
+        connectedBtResult = ex.toString();
+      });
     }
   }
 
@@ -89,7 +120,9 @@ class _MyAppState extends State<MyApp> {
     try {
       await btSearcher.stopSearch();
     } catch (ex) {
-      error = ex.toString();
+      setState(() {
+        connectedBtResult = ex.toString();
+      });
     }
     setState(() {
       _searching = false;
@@ -106,18 +139,45 @@ class _MyAppState extends State<MyApp> {
         connectedBtResult = "connected to device $index";
       });
     } catch (ex) {
-      error = ex.toString();
+      setState(() {
+        connectedBtResult = ex.toString();
+      });
     }
   }
 
   Future<void> _disconnectBluetooth() async {
     try {
-      await btDevice?.disconnect();
+      await btDevice!.disconnect();
       setState(() {
         connectedBtResult = "Disconnected from device";
       });
     } catch (ex) {
-      error = ex.toString();
+      setState(() {
+        connectedBtResult = ex.toString();
+      });
+    }
+  }
+
+  Future<void> _write() async {
+    try {
+      await btDevice!.write(writeController.text.codeUnits);
+    } catch (ex) {
+      setState(() {
+        connectedBtResult = ex.toString();
+      });
+    }
+  }
+
+  Future<void> _read() async {
+    try {
+      final result = await btDevice!.read();
+      setState(() {
+        readResult = String.fromCharCodes(result);
+      });
+    } catch (ex) {
+      setState(() {
+        connectedBtResult = ex.toString();
+      });
     }
   }
 }

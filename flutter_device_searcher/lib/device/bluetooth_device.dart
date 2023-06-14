@@ -33,4 +33,28 @@ class BluetoothDevice extends DeviceInterface {
       );
     }
   }
+
+  @override
+  Future<List<int>> read() {
+    try {
+      return FlutterDeviceSearcherPlatform.instance.read();
+    } on PlatformException catch (ex, st) {
+      Error.throwWithStackTrace(
+        getExceptionFromCode(int.parse(ex.code), ex.message ?? '', ex.details),
+        st,
+      );
+    }
+  }
+
+  @override
+  Future<bool> write(List<int> bytes) {
+    try {
+      return FlutterDeviceSearcherPlatform.instance.write(bytes);
+    } on PlatformException catch (ex, st) {
+      Error.throwWithStackTrace(
+        getExceptionFromCode(int.parse(ex.code), ex.message ?? '', ex.details),
+        st,
+      );
+    }
+  }
 }

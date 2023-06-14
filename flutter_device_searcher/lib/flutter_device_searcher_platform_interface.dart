@@ -44,4 +44,12 @@ abstract class FlutterDeviceSearcherPlatform extends PlatformInterface {
   Future<bool> disconnectBluetooth() {
     throw UnimplementedError('disconnectBluetooth() has not been implemented.');
   }
+
+  Future<List<int>> read() {
+    throw UnimplementedError('disconnectBluetooth() has not been implemented.');
+  }
+
+  Future<bool> write(List<int> bytes) {
+    throw UnimplementedError('disconnectBluetooth() has not been implemented.');
+  }
 }

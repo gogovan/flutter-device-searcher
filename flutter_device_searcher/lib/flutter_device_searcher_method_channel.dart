@@ -64,7 +64,26 @@ class MethodChannelFlutterDeviceSearcher extends FlutterDeviceSearcherPlatform {
   @override
   Future<bool> disconnectBluetooth() async {
     final result = await methodChannel.invokeMethod<bool>(
-        'hk.gogovan.flutter_device_searcher.disconnectBluetooth');
+      'hk.gogovan.flutter_device_searcher.disconnectBluetooth',
+    );
+
+    return result ?? false;
+  }
+
+  @override
+  Future<List<int>> read() async {
+    final result = await methodChannel.invokeMethod<List<int>>(
+      'hk.gogovan.flutter_device_searcher.read',
+    );
+
+    return result ?? [];
+  }
+
+  @override
+  Future<bool> write(List<int> bytes) async {
+    final result = await methodChannel.invokeMethod<bool>(
+      'hk.gogovan.flutter_device_searcher.write',
+    );
 
     return result ?? false;
   }
