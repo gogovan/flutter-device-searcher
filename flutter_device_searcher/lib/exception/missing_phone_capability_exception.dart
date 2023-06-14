@@ -1,4 +1,4 @@
-import 'package:flutter_device_searcher/exception/label_printer_exception.dart';
+import 'package:flutter_device_searcher/exception/device_searcher_exception.dart';
 
 /// MissingPhoneCapabilityException: When the client's phone do not have the capability to search the printer.
 /// For example, if the printer uses Bluetooth to connect to phone but the phone have no Bluetooth capability.

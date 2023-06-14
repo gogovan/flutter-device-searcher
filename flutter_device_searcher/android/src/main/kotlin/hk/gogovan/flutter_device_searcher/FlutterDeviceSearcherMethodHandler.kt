@@ -66,14 +66,14 @@ class FlutterDeviceSearcherMethodHandler(
                                         result.error(
                                             "1008",
                                             "Connection timed out.",
-                                            Throwable().stackTraceToString()
+                                            "${ex.message}\n${Throwable().stackTraceToString()}}"
                                         )
                                     }
                                 } catch (ex: Exception) {
                                     result.error(
                                         "1006",
                                         "Connection error.",
-                                        Throwable().stackTraceToString()
+                                        "${ex.message}\n${Throwable().stackTraceToString()}}"
                                     )
                                 }
                             }
@@ -88,12 +88,20 @@ class FlutterDeviceSearcherMethodHandler(
                             Throwable().stackTraceToString()
                         )
                     } else {
-                        socket?.inputStream?.close()
-                        socket?.outputStream?.close()
-                        socket?.close()
+                        try {
+                            socket?.inputStream?.close()
+                            socket?.outputStream?.close()
+                            socket?.close()
+                        } catch (ex: Exception) {
+                            result.error(
+                                "1011",
+                                "Unable to close connection.",
+                                "${ex.message}\n${Throwable().stackTraceToString()}}"
+                            )
+                        }
                     }
                 }
-                "hk.gogovan.flutter_device_searcher.getInput" -> {
+                "hk.gogovan.flutter_device_searcher.read" -> {
                     if (socket?.isConnected != true) {
                         result.error(
                             "1005",
@@ -101,13 +109,21 @@ class FlutterDeviceSearcherMethodHandler(
                             Throwable().stackTraceToString()
                         )
                     } else {
-                        val length = call.argument<Int>("length") ?: 0
-                        val bytes = ByteArray(length)
-                        socket?.inputStream?.read(bytes)
-                        result.success(bytes)
+                        try {
+                            val length = call.argument<Int>("length") ?: 0
+                            val bytes = ByteArray(length)
+                            socket?.inputStream?.read(bytes)
+                            result.success(bytes)
+                        } catch (ex: Exception) {
+                            result.error(
+                                "1011",
+                                "Failed to read bytes",
+                                "${ex.message}\n${Throwable().stackTraceToString()}}"
+                            )
+                        }
                     }
                 }
-                "hk.gogovan.flutter_device_searcher.getOutput" -> {
+                "hk.gogovan.flutter_device_searcher.write" -> {
                     if (socket?.isConnected != true) {
                         result.error(
                             "1005",
@@ -115,9 +131,17 @@ class FlutterDeviceSearcherMethodHandler(
                             Throwable().stackTraceToString()
                         )
                     } else {
-                        val bytes = call.argument<ByteArray>("bytes") ?: ByteArray(0)
-                        socket?.outputStream?.write(bytes)
-                        result.success(true)
+                        try {
+                            val bytes = call.argument<ByteArray>("bytes") ?: ByteArray(0)
+                            socket?.outputStream?.write(bytes)
+                            result.success(true)
+                        } catch (ex: Exception) {
+                        result.error(
+                            "1011",
+                            "Failed to write bytes",
+                            "${ex.message}\n${Throwable().stackTraceToString()}}"
+                        )
+                    }
                     }
                 }
                 else -> {

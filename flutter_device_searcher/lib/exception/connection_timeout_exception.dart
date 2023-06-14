@@ -1,4 +1,4 @@
-import 'package:flutter_device_searcher/exception/label_printer_exception.dart';
+import 'package:flutter_device_searcher/exception/device_searcher_exception.dart';
 
 /// ConnectionTimeoutException: When connecting to the device timed out.
 class ConnectionTimeoutException extends DeviceSearcherException {

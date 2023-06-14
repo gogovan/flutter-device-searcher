@@ -1,4 +1,4 @@
-import 'package:flutter_device_searcher/exception/label_printer_exception.dart';
+import 'package:flutter_device_searcher/exception/device_searcher_exception.dart';
 
 /// SearchFailedException: When the plugin is unable to start searching for devices.
 /// It could be user denied Bluetooth connection or error occurred while enabling Bluetooth.

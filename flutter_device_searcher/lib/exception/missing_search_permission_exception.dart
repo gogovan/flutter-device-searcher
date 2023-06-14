@@ -1,4 +1,4 @@
-import 'package:flutter_device_searcher/exception/label_printer_exception.dart';
+import 'package:flutter_device_searcher/exception/device_searcher_exception.dart';
 
 /// MissingSearchPermissionException: When the client does not have permission to search for devices.
 /// Typically this is thrown when the user denied the permissions required to search a device.
