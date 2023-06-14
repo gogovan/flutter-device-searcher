@@ -13,6 +13,7 @@ class FlutterDeviceSearcherMethodHandler(
     private val log = Log()
 
     private var socket: BluetoothSocket? = null
+    private var connected = false
 
     override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) {
         try {
@@ -34,7 +35,7 @@ class FlutterDeviceSearcherMethodHandler(
                     result.success(response)
                 }
                 "hk.gogovan.flutter_device_searcher.connectBluetooth" -> {
-                    if (socket?.isConnected == true) {
+                    if (connected) {
                         result.error(
                             "1005",
                             "Device already connected.",
@@ -62,6 +63,8 @@ class FlutterDeviceSearcherMethodHandler(
                                     socket = device.createInsecureRfcommSocketToServiceRecord(UUID.fromString(uuid))
                                     try {
                                         socket?.connect()
+                                        connected = true
+                                        result.success(true)
                                     } catch (ex: Exception) {
                                         result.error(
                                             "1008",
@@ -81,7 +84,7 @@ class FlutterDeviceSearcherMethodHandler(
                     }
                 }
                 "hk.gogovan.flutter_device_searcher.disconnectBluetooth" -> {
-                    if (socket?.isConnected != true) {
+                    if (!connected) {
                         result.error(
                             "1005",
                             "Device is not connected.",
@@ -92,6 +95,8 @@ class FlutterDeviceSearcherMethodHandler(
                             socket?.inputStream?.close()
                             socket?.outputStream?.close()
                             socket?.close()
+                            connected = false
+                            result.success(true)
                         } catch (ex: Exception) {
                             result.error(
                                 "1011",
@@ -102,7 +107,7 @@ class FlutterDeviceSearcherMethodHandler(
                     }
                 }
                 "hk.gogovan.flutter_device_searcher.read" -> {
-                    if (socket?.isConnected != true) {
+                    if (!connected) {
                         result.error(
                             "1005",
                             "Device is not connected.",
@@ -124,7 +129,7 @@ class FlutterDeviceSearcherMethodHandler(
                     }
                 }
                 "hk.gogovan.flutter_device_searcher.write" -> {
-                    if (socket?.isConnected != true) {
+                    if (!connected) {
                         result.error(
                             "1005",
                             "Device is not connected.",
