@@ -1,8 +1,8 @@
 import 'package:flutter/services.dart';
 import 'package:flutter_device_searcher/device_searcher/device_searcher_interface.dart';
+import 'package:flutter_device_searcher/exception_codes.dart';
 import 'package:flutter_device_searcher/flutter_device_searcher_platform_interface.dart';
 import 'package:flutter_device_searcher/search_result/device_search_result.dart';
-import 'package:flutter_device_searcher/exception_codes.dart';
 
 /// Searcher for devices using Classic Bluetooth.
 class BluetoothSearcher extends DeviceSearcherInterface {
