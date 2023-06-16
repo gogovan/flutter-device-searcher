@@ -31,6 +31,7 @@
 
 /* Begin PBXFileReference section */
 		037B66A1207EF164E9D99546 /* Pods-Runner.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.release.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.release.xcconfig"; sourceTree = "<group>"; };
+		11C15C212A3AC8DA009C0C75 /* ExternalAccessory.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ExternalAccessory.framework; path = System/Library/Frameworks/ExternalAccessory.framework; sourceTree = SDKROOT; };
 		1498D2321E8E86230040F4C2 /* GeneratedPluginRegistrant.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GeneratedPluginRegistrant.h; sourceTree = "<group>"; };
 		1498D2331E8E89220040F4C2 /* GeneratedPluginRegistrant.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GeneratedPluginRegistrant.m; sourceTree = "<group>"; };
 		3B3967151E833CAA004F5970 /* AppFrameworkInfo.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = AppFrameworkInfo.plist; path = Flutter/AppFrameworkInfo.plist; sourceTree = "<group>"; };
@@ -68,7 +69,6 @@
 				037B66A1207EF164E9D99546 /* Pods-Runner.release.xcconfig */,
 				78B0B43B0B218879C1CC500E /* Pods-Runner.profile.xcconfig */,
 			);
-			name = Pods;
 			path = Pods;
 			sourceTree = "<group>";
 		};
@@ -120,6 +120,7 @@
 		D57E5DD61C9E6C8EECD1DB4D /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				11C15C212A3AC8DA009C0C75 /* ExternalAccessory.framework */,
 				7A5435FAF82F819F400CFB7C /* Pods_Runner.framework */,
 			);
 			name = Frameworks;

@@ -53,7 +53,7 @@ class _MyAppState extends State<MyApp> {
                   onPressed: _searchBluetooth,
                   child: const Text('Search for Bluetooth')),
               Text('Searching = $_searching'),
-              Text(searchedBtResult.map((e) => "$e\n").toString()),
+              ...searchedBtResult.map((e) => Text("$e\n")),
               ElevatedButton(
                   onPressed: _stopSearchBluetooth,
                   child: const Text('Stop Searching for Bluetooth')),
