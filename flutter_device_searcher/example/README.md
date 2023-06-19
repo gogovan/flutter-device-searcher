@@ -1,6 +1,6 @@
 # flutter_device_searcher_example
 
-Demonstrates how to use the flutter_device_searcher plugin.
+A new Flutter project.
 
 ## Getting Started
 

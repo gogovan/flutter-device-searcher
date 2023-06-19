@@ -1,14 +1,14 @@
 # flutter_device_searcher
 
-A generic library to search for external device using various connection technologies. Support Bluetooth Classic.
+A generic library to search for external device using various connection technologies. Support Bluetooth LE.
 
 ## Getting Started
 
-1. Update your app `android/app/build.gradle` and update minSdkVersion to at least 19
+1. Update your app `android/app/build.gradle` and update minSdkVersion to at least 21
 ```groovy
 defaultConfig {
     applicationId "com.example.app"
-    minSdkVersion 19
+    minSdkVersion 21
     // ...
 }
 ```
