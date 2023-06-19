@@ -1,6 +1,6 @@
 import 'package:flutter_device_searcher/device/device_interface.dart';
 import 'package:flutter_device_searcher/exception/device_connection_error.dart';
-import 'package:flutter_device_searcher/exception/invalid_connection_state.dart';
+import 'package:flutter_device_searcher/exception/invalid_connection_state_error.dart';
 import 'package:flutter_device_searcher/exception/invalid_device_result_error.dart';
 import 'package:flutter_device_searcher/flutter_device_searcher.dart';
 import 'package:flutter_device_searcher/search_result/bluetooth_result.dart';
@@ -45,7 +45,7 @@ class BluetoothDevice extends DeviceInterface {
   Future<List<DiscoveredService>> getServices() async {
     final id = deviceId;
     if (!isConnected() || id == null) {
-      throw const InvalidConnectionState('Device not connected.');
+      throw const InvalidConnectionStateError('Device not connected.');
     }
 
     return searcher.flutterBle.discoverServices(id);
@@ -54,7 +54,7 @@ class BluetoothDevice extends DeviceInterface {
   Future<List<int>> read(Uuid characteristicId, Uuid serviceId) async {
     final id = deviceId;
     if (!isConnected() || id == null) {
-      throw const InvalidConnectionState('Device not connected.');
+      throw const InvalidConnectionStateError('Device not connected.');
     }
 
     final characteristic = QualifiedCharacteristic(characteristicId: characteristicId, serviceId: serviceId, deviceId: id);
@@ -66,7 +66,7 @@ class BluetoothDevice extends DeviceInterface {
   {
     final id = deviceId;
     if (!isConnected() || id == null) {
-      throw const InvalidConnectionState('Device not connected.');
+      throw const InvalidConnectionStateError('Device not connected.');
     }
 
     final characteristic = QualifiedCharacteristic(characteristicId: characteristicId, serviceId: serviceId, deviceId: id);
