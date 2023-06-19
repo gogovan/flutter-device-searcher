@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
 
-import 'package:flutter/services.dart';
 import 'package:flutter_device_searcher/device/bluetooth_device.dart';
 import 'package:flutter_device_searcher/device_searcher/bluetooth_searcher.dart';
+import 'package:flutter_device_searcher/flutter_device_searcher.dart';
+import 'package:flutter_device_searcher/search_result/bluetooth_result.dart';
 import 'package:flutter_device_searcher/search_result/device_search_result.dart';
 
 void main() {
@@ -18,7 +19,9 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  final btSearcher = BluetoothSearcher();
+  final deviceSearcher = FlutterDeviceSearcher();
+  BluetoothSearcher? btSearcher;
+
   final connectIndexController = TextEditingController();
   final writeController = TextEditingController();
   BluetoothDevice? btDevice;
@@ -31,6 +34,8 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
+
+    btSearcher = BluetoothSearcher(deviceSearcher);
   }
 
   @override
@@ -53,7 +58,12 @@ class _MyAppState extends State<MyApp> {
                   onPressed: _searchBluetooth,
                   child: const Text('Search for Bluetooth')),
               Text('Searching = $_searching'),
-              ...searchedBtResult.map((e) => Text("$e\n")),
+              ...searchedBtResult
+                  .where((e) => (e as BluetoothResult).name?.isNotEmpty == true)
+                  .toList().asMap()
+                  .map((key, value) => MapEntry(key, "$key. $value"))
+                  .values
+                  .map((e) => Text(e)),
               ElevatedButton(
                   onPressed: _stopSearchBluetooth,
                   child: const Text('Stop Searching for Bluetooth')),
@@ -104,7 +114,7 @@ class _MyAppState extends State<MyApp> {
     });
 
     try {
-      btSearcher.search().listen((event) {
+      btSearcher?.search().listen((event) {
         setState(() {
           searchedBtResult = event;
         });
@@ -118,7 +128,7 @@ class _MyAppState extends State<MyApp> {
 
   Future<void> _stopSearchBluetooth() async {
     try {
-      await btSearcher.stopSearch();
+      await btSearcher?.stopSearch();
     } catch (ex) {
       setState(() {
         connectedBtResult = ex.toString();
@@ -132,7 +142,7 @@ class _MyAppState extends State<MyApp> {
   Future<void> _connectBluetooth() async {
     try {
       final index = int.parse(connectIndexController.text);
-      btDevice = BluetoothDevice(searchedBtResult[index]);
+      btDevice = BluetoothDevice(deviceSearcher, searchedBtResult[index]);
       await btDevice?.connect();
 
       setState(() {

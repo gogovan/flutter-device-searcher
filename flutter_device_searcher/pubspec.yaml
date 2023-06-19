@@ -13,19 +13,10 @@ dependencies:
     sdk: flutter
   logging: ^1.1.0
   plugin_platform_interface: ^2.0.2
+  flutter_reactive_ble: ^5.0.3
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^2.0.0
   dart_code_metrics: ^5.7.0
-
-# The following section is specific to Flutter packages.
-flutter:
-  plugin:
-    platforms:
-      android:
-        package: hk.gogovan.flutter_device_searcher
-        pluginClass: FlutterDeviceSearcherPlugin
-      ios:
-        pluginClass: FlutterDeviceSearcherPlugin
