@@ -28,8 +28,9 @@ class _MyAppState extends State<MyApp> {
 
   bool _searching = false;
   var searchedBtResult = <DeviceSearchResult>[];
-  String connectedBtResult = "Pending connection...";
-  var readResult = "Read Result";
+  String connectedBtResult = 'Pending connection...';
+  String serviceListResult = '';
+  var readResult = 'Read Result';
 
   @override
   void initState() {
@@ -60,7 +61,8 @@ class _MyAppState extends State<MyApp> {
               Text('Searching = $_searching'),
               ...searchedBtResult
                   .where((e) => (e as BluetoothResult).name?.isNotEmpty == true)
-                  .toList().asMap()
+                  .toList()
+                  .asMap()
                   .map((key, value) => MapEntry(key, "$key. $value"))
                   .values
                   .map((e) => Text(e)),
@@ -81,6 +83,7 @@ class _MyAppState extends State<MyApp> {
                   onPressed: _disconnectBluetooth,
                   child: const Text('Disconnect Bluetooth')),
               Text(connectedBtResult),
+              Text(serviceListResult),
               Row(
                 children: [
                   SizedBox(
@@ -145,8 +148,12 @@ class _MyAppState extends State<MyApp> {
       btDevice = BluetoothDevice(deviceSearcher, searchedBtResult[index]);
       await btDevice?.connect();
 
+      final services = await btDevice?.getServices();
+
       setState(() {
-        connectedBtResult = "connected to device $index";
+        connectedBtResult = 'connected to device $index';
+        serviceListResult =
+            'Services: $services';
       });
     } catch (ex) {
       setState(() {
@@ -169,6 +176,7 @@ class _MyAppState extends State<MyApp> {
   }
 
   Future<void> _write() async {
+    /*
     try {
       await btDevice!.write(writeController.text.codeUnits);
     } catch (ex) {
@@ -176,9 +184,12 @@ class _MyAppState extends State<MyApp> {
         connectedBtResult = ex.toString();
       });
     }
+
+     */
   }
 
   Future<void> _read() async {
+    /*
     try {
       final result = await btDevice!.read();
       setState(() {
@@ -189,5 +200,7 @@ class _MyAppState extends State<MyApp> {
         connectedBtResult = ex.toString();
       });
     }
+
+     */
   }
 }

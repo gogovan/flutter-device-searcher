@@ -59,10 +59,4 @@ abstract class DeviceInterface {
   /// This method should be idempotent - multiple invocation of this method should not result in errors or multiple disconnections.
   @protected
   Future<bool> disconnectImpl();
-
-  /// Read bytes from the connection.
-  Future<List<int>> read();
-
-  /// Write bytes into the connection.
-  Future<bool> write(List<int> bytes);
 }
