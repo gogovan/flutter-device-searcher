@@ -19,8 +19,12 @@ class BluetoothSearcher extends DeviceSearcherInterface {
   /// Will request for Bluetooth permission if none was granted yet.
   @override
   Stream<List<DeviceSearchResult>> search() => StreamGroup.merge([
-        Permission.bluetooth.request().asStream().map((event) {
-          if (!event.isGranted) {
+        [
+          Permission.location,
+          Permission.bluetoothScan,
+          Permission.bluetoothConnect,
+        ].request().asStream().map((event) {
+          if (event.values.any((element) => !element.isGranted)) {
             throw const PermissionDeniedError(
               'Permission for Bluetooth denied.',
             );
