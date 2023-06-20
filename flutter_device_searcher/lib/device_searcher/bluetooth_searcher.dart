@@ -19,25 +19,32 @@ class BluetoothSearcher extends DeviceSearcherInterface {
   /// Will request for Bluetooth permission if none was granted yet.
   @override
   Stream<List<DeviceSearchResult>> search() => [
-      Permission.location,
-      Permission.bluetoothScan,
-      Permission.bluetoothConnect,
-    ].request().asStream().map((event) {
-      if (event.values.any((element) => !element.isGranted)) {
-        throw const PermissionDeniedError(
-          'Permission for Bluetooth denied.',
-        );
-      } else {
-        return <DeviceSearchResult>[];
-      }
-    }).concatWith([
-      searcher.flutterBle.scanForDevices(withServices: []).map((e) {
-        final newResult = BluetoothResult(id: e.id, name: e.name);
+        Permission.location,
+        Permission.bluetoothScan,
+        Permission.bluetoothConnect,
+      ].request().asStream().map((event) {
+        if (event.values.any((element) => !element.isGranted)) {
+          throw const PermissionDeniedError(
+            'Permission for Bluetooth denied.',
+          );
+        } else {
+          return <DeviceSearchResult>[];
+        }
+      }).concatWith([
+        searcher.flutterBle.scanForDevices(withServices: []).map((e) {
+          searcher.logger.fine('Start scanning Bluetooth devices.');
+          searcher.searching = true;
 
-        // ignore: avoid-ignoring-return-values, not needed.
-        foundDevices.add(newResult);
+          final newResult = BluetoothResult(id: e.id, name: e.name);
 
-        return foundDevices.toList();
-      }),
-    ]);
+          // ignore: avoid-ignoring-return-values, not needed.
+          foundDevices.add(newResult);
+          searcher.logger.finer('Found device $newResult');
+
+          return foundDevices.toList();
+        }),
+      ]).doOnCancel(() {
+        searcher.logger.fine('Stop scanning Bluetooth devices.');
+        searcher.searching = false;
+      });
 }

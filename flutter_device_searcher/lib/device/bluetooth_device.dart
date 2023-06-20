@@ -1,4 +1,3 @@
-import 'package:async/async.dart';
 import 'package:flutter_device_searcher/device/device_interface.dart';
 import 'package:flutter_device_searcher/exception/device_connection_error.dart';
 import 'package:flutter_device_searcher/exception/invalid_connection_state_error.dart';
@@ -24,8 +23,19 @@ class BluetoothDevice extends DeviceInterface {
       );
     }
 
+    if (searcher.searching) {
+      // Some phones may misbehave when trying to connect a bluetooth device while scanning.
+      // Ref https://github.com/dariuszseweryn/RxAndroidBle/wiki/FAQ:-Cannot-connect#connect-while-scanning.
+      searcher.logger.warning('There is a ongoing device scan. Connecting a device while a scan is ongoing may fail in some phones.');
+    }
+
     deviceId = device.id;
 
+    searcher.logger.fine('Connecting to device $device');
+
+    // Some phones may misbehave when trying to connect a bluetooth device right after stopping scan.
+    // Adding a 1 sec delay make it more reliable.
+    // Ref https://github.com/dariuszseweryn/RxAndroidBle/wiki/FAQ:-Cannot-connect#connect-right-after-scanning.
     return TimerStream<bool>(false, const Duration(seconds: 1)).concatWith(
       [
         searcher.flutterBle
@@ -33,6 +43,8 @@ class BluetoothDevice extends DeviceInterface {
             .where((event) => event.deviceId == deviceId)
             .map(
           (event) {
+            searcher.logger.finer('Detected connect state: $event');
+
             final failure = event.failure;
             if (failure != null) {
               throw DeviceConnectionError('${failure.code} ${failure.message}');
@@ -64,20 +76,29 @@ class BluetoothDevice extends DeviceInterface {
     }
 
     final characteristic = QualifiedCharacteristic(
-        characteristicId: characteristicId, serviceId: serviceId, deviceId: id);
+      characteristicId: characteristicId,
+      serviceId: serviceId,
+      deviceId: id,
+    );
 
     return searcher.flutterBle.readCharacteristic(characteristic);
   }
 
   Future<void> write(
-      List<int> value, Uuid characteristicId, Uuid serviceId) async {
+    List<int> value,
+    Uuid characteristicId,
+    Uuid serviceId,
+  ) async {
     final id = deviceId;
     if (!isConnected() || id == null) {
       throw const InvalidConnectionStateError('Device not connected.');
     }
 
     final characteristic = QualifiedCharacteristic(
-        characteristicId: characteristicId, serviceId: serviceId, deviceId: id);
+      characteristicId: characteristicId,
+      serviceId: serviceId,
+      deviceId: id,
+    );
 
     return searcher.flutterBle
         .writeCharacteristicWithoutResponse(characteristic, value: value);

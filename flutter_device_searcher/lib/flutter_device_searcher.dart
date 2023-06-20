@@ -8,7 +8,10 @@ class FlutterDeviceSearcher {
 
   final Duration timeout;
 
+  bool searching = false;
+
   final flutterBle = FlutterReactiveBle();
 
   final logger = Logger('flutter_device_searcher');
+
 }
