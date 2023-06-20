@@ -26,7 +26,9 @@ class BluetoothDevice extends DeviceInterface {
     if (searcher.searching) {
       // Some phones may misbehave when trying to connect a bluetooth device while scanning.
       // Ref https://github.com/dariuszseweryn/RxAndroidBle/wiki/FAQ:-Cannot-connect#connect-while-scanning.
-      searcher.logger.warning('There is a ongoing device scan. Connecting a device while a scan is ongoing may fail in some phones.');
+      searcher.logger.warning(
+        'There is a ongoing device scan. Connecting a device while a scan is ongoing may fail in some phones.',
+      );
     }
 
     deviceId = device.id;
@@ -82,6 +84,21 @@ class BluetoothDevice extends DeviceInterface {
     );
 
     return searcher.flutterBle.readCharacteristic(characteristic);
+  }
+
+  Stream<List<int>> readAsStream(Uuid serviceId, Uuid characteristicId) {
+    final id = deviceId;
+    if (!isConnected() || id == null) {
+      throw const InvalidConnectionStateError('Device not connected.');
+    }
+
+    final characteristic = QualifiedCharacteristic(
+      characteristicId: characteristicId,
+      serviceId: serviceId,
+      deviceId: id,
+    );
+
+    return searcher.flutterBle.subscribeToCharacteristic(characteristic);
   }
 
   Future<void> write(

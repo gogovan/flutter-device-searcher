@@ -35,6 +35,8 @@ class _MyAppState extends State<MyApp> {
   Uuid selectedCharacteristicUuid = Uuid([]);
 
   var readResult = 'Read Result';
+  var readStreamResult = '';
+  StreamSubscription<List<int>>? readStreamSubscription;
 
   @override
   void initState() {
@@ -71,18 +73,17 @@ class _MyAppState extends State<MyApp> {
                   .toList()
                   .asMap()
                   .entries
-                  .map((item) =>
-                  Column(children: [
-                    Row(
-                      children: [
-                        Expanded(child: Text(item.value.toString())),
-                        ElevatedButton(
-                            onPressed: () => _connectBluetooth(item.key),
-                            child: const Text('Connect')),
-                      ],
-                    ),
-                    Container(color: Colors.blue, height: 1)
-                  ])),
+                  .map((item) => Column(children: [
+                        Row(
+                          children: [
+                            Expanded(child: Text(item.value.toString())),
+                            ElevatedButton(
+                                onPressed: () => _connectBluetooth(item.key),
+                                child: const Text('Connect')),
+                          ],
+                        ),
+                        Container(color: Colors.blue, height: 1)
+                      ])),
               ElevatedButton(
                   onPressed: _disconnectBluetooth,
                   child: const Text('Disconnect Bluetooth')),
@@ -91,10 +92,12 @@ class _MyAppState extends State<MyApp> {
                   onPressed: _getServices, child: const Text('Get Services')),
               ...serviceList
                   .expand((element) => element.characteristics)
-                  .toList().map((item) =>
-                  Column(children: [
-                    Row(children: [
-                      Expanded(child: Text('''
+                  .toList()
+                  .map((item) => Column(
+                        children: [
+                          Row(
+                            children: [
+                              Expanded(child: Text('''
 Service ${item.serviceId} 
 Characteristic ${item.characteristicId}
 Readable: ${item.isReadable}
@@ -103,13 +106,18 @@ Notifiable: ${item.isNotifiable}
 Writable w/ response: ${item.isWritableWithResponse}
 Writable w/o response: ${item.isWritableWithoutResponse}
                   ''')),
-                      ElevatedButton(onPressed: () {
-                        selectedServiceUuid = item.serviceId;
-                        selectedCharacteristicUuid = item.characteristicId;
-                      }, child: Text('Use for R/W'))
-                    ],),
-                    Container(color: Colors.blue, height: 1)
-                  ],)),
+                              ElevatedButton(
+                                  onPressed: () {
+                                    selectedServiceUuid = item.serviceId;
+                                    selectedCharacteristicUuid =
+                                        item.characteristicId;
+                                  },
+                                  child: Text('Use for R/W'))
+                            ],
+                          ),
+                          Container(color: Colors.blue, height: 1)
+                        ],
+                      )),
               Row(
                 children: [
                   SizedBox(
@@ -129,7 +137,16 @@ Writable w/o response: ${item.isWritableWithoutResponse}
                   ElevatedButton(onPressed: _read, child: const Text('Read')),
                   Text(readResult),
                 ],
-              )
+              ),
+              Row(
+                children: [
+                  ElevatedButton(
+                      onPressed: _readStream, child: const Text('Read Stream')),
+                  ElevatedButton(
+                      onPressed: _stopReadStream, child: const Text('Stop')),
+                ],
+              ),
+              Text(readStreamResult),
             ],
           ),
         ),
@@ -222,7 +239,8 @@ Writable w/o response: ${item.isWritableWithoutResponse}
 
   Future<void> _write() async {
     try {
-      await btDevice!.write(writeController.text.codeUnits, selectedServiceUuid, selectedCharacteristicUuid);
+      await btDevice!.write(writeController.text.codeUnits, selectedServiceUuid,
+          selectedCharacteristicUuid);
     } catch (ex) {
       setState(() {
         connectedBtResult = ex.toString();
@@ -232,14 +250,38 @@ Writable w/o response: ${item.isWritableWithoutResponse}
 
   Future<void> _read() async {
     try {
-      final result = await btDevice!.read(selectedServiceUuid, selectedCharacteristicUuid);
+      final result =
+          await btDevice!.read(selectedServiceUuid, selectedCharacteristicUuid);
+      print('_read: ${result.toString()}');
       setState(() {
-        readResult = result.toString();
+        readResult = String.fromCharCodes(result);
       });
     } catch (ex) {
       setState(() {
-        connectedBtResult = ex.toString();
+        readResult = ex.toString();
       });
     }
+  }
+
+  void _readStream() {
+    try {
+      readStreamSubscription?.cancel();
+      readStreamSubscription = btDevice!
+          .readAsStream(selectedServiceUuid, selectedCharacteristicUuid)
+          .listen((event) {
+        print('_readStream ${event.toString()}');
+        setState(() {
+          readStreamResult = String.fromCharCodes(event);
+        });
+      });
+    } catch (ex) {
+      setState(() {
+        readStreamResult = ex.toString();
+      });
+    }
+  }
+
+  void _stopReadStream() {
+    readStreamSubscription?.cancel();
   }
 }
