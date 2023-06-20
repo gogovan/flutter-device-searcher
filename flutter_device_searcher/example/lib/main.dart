@@ -31,6 +31,8 @@ class _MyAppState extends State<MyApp> {
   String connectedBtResult = 'Pending connection...';
 
   List<DiscoveredService> serviceList = <DiscoveredService>[];
+  Uuid selectedServiceUuid = Uuid([]);
+  Uuid selectedCharacteristicUuid = Uuid([]);
 
   var readResult = 'Read Result';
 
@@ -69,23 +71,45 @@ class _MyAppState extends State<MyApp> {
                   .toList()
                   .asMap()
                   .entries
-                  .map((item) => Column(children: [
-                        Row(
-                          children: [
-                            Expanded(child: Text(item.value.toString())),
-                            ElevatedButton(
-                                onPressed: () => _connectBluetooth(item.key),
-                                child: const Text('Connect')),
-                          ],
-                        ),
-                        Container(color: Colors.blue, height: 1)
-                      ])),
+                  .map((item) =>
+                  Column(children: [
+                    Row(
+                      children: [
+                        Expanded(child: Text(item.value.toString())),
+                        ElevatedButton(
+                            onPressed: () => _connectBluetooth(item.key),
+                            child: const Text('Connect')),
+                      ],
+                    ),
+                    Container(color: Colors.blue, height: 1)
+                  ])),
               ElevatedButton(
                   onPressed: _disconnectBluetooth,
                   child: const Text('Disconnect Bluetooth')),
               Text(connectedBtResult),
               ElevatedButton(
                   onPressed: _getServices, child: const Text('Get Services')),
+              ...serviceList
+                  .expand((element) => element.characteristics)
+                  .toList().map((item) =>
+                  Column(children: [
+                    Row(children: [
+                      Expanded(child: Text('''
+Service ${item.serviceId} 
+Characteristic ${item.characteristicId}
+Readable: ${item.isReadable}
+Indicatable: ${item.isIndicatable}
+Notifiable: ${item.isNotifiable}
+Writable w/ response: ${item.isWritableWithResponse}
+Writable w/o response: ${item.isWritableWithoutResponse}
+                  ''')),
+                      ElevatedButton(onPressed: () {
+                        selectedServiceUuid = item.serviceId;
+                        selectedCharacteristicUuid = item.characteristicId;
+                      }, child: Text('Use for R/W'))
+                    ],),
+                    Container(color: Colors.blue, height: 1)
+                  ],)),
               Row(
                 children: [
                   SizedBox(
@@ -197,31 +221,25 @@ class _MyAppState extends State<MyApp> {
   }
 
   Future<void> _write() async {
-    /*
     try {
-      await btDevice!.write(writeController.text.codeUnits);
+      await btDevice!.write(writeController.text.codeUnits, selectedServiceUuid, selectedCharacteristicUuid);
     } catch (ex) {
       setState(() {
         connectedBtResult = ex.toString();
       });
     }
-
-     */
   }
 
   Future<void> _read() async {
-    /*
     try {
-      final result = await btDevice!.read();
+      final result = await btDevice!.read(selectedServiceUuid, selectedCharacteristicUuid);
       setState(() {
-        readResult = String.fromCharCodes(result);
+        readResult = result.toString();
       });
     } catch (ex) {
       setState(() {
         connectedBtResult = ex.toString();
       });
     }
-
-     */
   }
 }
