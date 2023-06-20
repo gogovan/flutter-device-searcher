@@ -1,4 +1,5 @@
-import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
+import 'package:flutter_reactive_ble/flutter_reactive_ble.dart' hide Logger;
+import 'package:logging/logging.dart';
 
 class FlutterDeviceSearcher {
   FlutterDeviceSearcher({
@@ -8,4 +9,6 @@ class FlutterDeviceSearcher {
   final Duration timeout;
 
   final flutterBle = FlutterReactiveBle();
+
+  final logger = Logger('flutter_device_searcher');
 }

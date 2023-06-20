@@ -36,6 +36,8 @@ class _MyAppState extends State<MyApp> {
   void initState() {
     super.initState();
 
+    deviceSearcher.logger.onRecord.listen(print);
+
     btSearcher = BluetoothSearcher(deviceSearcher);
   }
 
@@ -58,17 +60,16 @@ class _MyAppState extends State<MyApp> {
               ElevatedButton(
                   onPressed: _searchBluetooth,
                   child: const Text('Search for Bluetooth')),
-              Text('Searching = $_searching'),
-              ...searchedBtResult
-                  .where((e) => (e as BluetoothResult).name?.isNotEmpty == true)
-                  .toList()
-                  .asMap()
-                  .map((key, value) => MapEntry(key, "$key. $value"))
-                  .values
-                  .map((e) => Text(e)),
               ElevatedButton(
                   onPressed: _stopSearchBluetooth,
                   child: const Text('Stop Searching for Bluetooth')),
+              Text('Searching = $_searching'),
+              ...searchedBtResult
+                  .toList()
+                  .asMap()
+                  .map((key, value) => MapEntry(key, '$key. $value'))
+                  .values
+                  .map((e) => Text(e)),
               TextField(
                 decoration: const InputDecoration(
                   hintText: 'Index of Search result to Connect Bluetooth to',
@@ -111,15 +112,17 @@ class _MyAppState extends State<MyApp> {
     );
   }
 
+  StreamSubscription<List<DeviceSearchResult>>? _searchStream;
+
   void _searchBluetooth() {
     setState(() {
       _searching = true;
     });
 
     try {
-      btSearcher?.search().listen((event) {
+      _searchStream = btSearcher?.search().listen(cancelOnError: true, (event) {
         setState(() {
-          searchedBtResult = event;
+          searchedBtResult = event.where((e) => (e as BluetoothResult).name?.isNotEmpty == true).toList();
         });
       });
     } catch (ex) {
@@ -131,7 +134,8 @@ class _MyAppState extends State<MyApp> {
 
   Future<void> _stopSearchBluetooth() async {
     try {
-      await btSearcher?.stopSearch();
+      // await btSearcher?.stopSearch();
+      await _searchStream?.cancel();
     } catch (ex) {
       setState(() {
         connectedBtResult = ex.toString();
@@ -145,15 +149,20 @@ class _MyAppState extends State<MyApp> {
   Future<void> _connectBluetooth() async {
     try {
       final index = int.parse(connectIndexController.text);
+
+      setState(() {
+        connectedBtResult = 'Connecting to device $index';
+      });
+
       btDevice = BluetoothDevice(deviceSearcher, searchedBtResult[index]);
       await btDevice?.connect();
 
-      final services = await btDevice?.getServices();
+      // final services = await btDevice?.getServices();
 
       setState(() {
         connectedBtResult = 'connected to device $index';
         serviceListResult =
-            'Services: $services';
+            'Services: ';
       });
     } catch (ex) {
       setState(() {
@@ -165,6 +174,7 @@ class _MyAppState extends State<MyApp> {
   Future<void> _disconnectBluetooth() async {
     try {
       await btDevice!.disconnect();
+
       setState(() {
         connectedBtResult = "Disconnected from device";
       });
