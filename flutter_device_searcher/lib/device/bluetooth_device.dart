@@ -69,7 +69,7 @@ class BluetoothDevice extends DeviceInterface {
     return searcher.flutterBle.discoverServices(id);
   }
 
-  Future<List<int>> read(Uuid characteristicId, Uuid serviceId) async {
+  Future<List<int>> read(Uuid serviceId, Uuid characteristicId) async {
     final id = deviceId;
     if (!isConnected() || id == null) {
       throw const InvalidConnectionStateError('Device not connected.');
@@ -86,8 +86,8 @@ class BluetoothDevice extends DeviceInterface {
 
   Future<void> write(
     List<int> value,
-    Uuid characteristicId,
     Uuid serviceId,
+    Uuid characteristicId,
   ) async {
     final id = deviceId;
     if (!isConnected() || id == null) {

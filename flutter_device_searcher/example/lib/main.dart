@@ -6,6 +6,7 @@ import 'package:flutter_device_searcher/device_searcher/bluetooth_searcher.dart'
 import 'package:flutter_device_searcher/flutter_device_searcher.dart';
 import 'package:flutter_device_searcher/search_result/bluetooth_result.dart';
 import 'package:flutter_device_searcher/search_result/device_search_result.dart';
+import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
 
 void main() {
   runApp(const MyApp());
@@ -22,14 +23,15 @@ class _MyAppState extends State<MyApp> {
   final deviceSearcher = FlutterDeviceSearcher();
   BluetoothSearcher? btSearcher;
 
-  final connectIndexController = TextEditingController();
   final writeController = TextEditingController();
   BluetoothDevice? btDevice;
 
   bool _searching = false;
   var searchedBtResult = <DeviceSearchResult>[];
   String connectedBtResult = 'Pending connection...';
-  String serviceListResult = '';
+
+  List<DiscoveredService> serviceList = <DiscoveredService>[];
+
   var readResult = 'Read Result';
 
   @override
@@ -43,7 +45,6 @@ class _MyAppState extends State<MyApp> {
 
   @override
   void dispose() {
-    connectIndexController.dispose();
     super.dispose();
   }
 
@@ -67,24 +68,24 @@ class _MyAppState extends State<MyApp> {
               ...searchedBtResult
                   .toList()
                   .asMap()
-                  .map((key, value) => MapEntry(key, '$key. $value'))
-                  .values
-                  .map((e) => Text(e)),
-              TextField(
-                decoration: const InputDecoration(
-                  hintText: 'Index of Search result to Connect Bluetooth to',
-                ),
-                keyboardType: TextInputType.number,
-                controller: connectIndexController,
-              ),
-              ElevatedButton(
-                  onPressed: _connectBluetooth,
-                  child: const Text('Connect Bluetooth')),
+                  .entries
+                  .map((item) => Column(children: [
+                        Row(
+                          children: [
+                            Expanded(child: Text(item.value.toString())),
+                            ElevatedButton(
+                                onPressed: () => _connectBluetooth(item.key),
+                                child: const Text('Connect')),
+                          ],
+                        ),
+                        Container(color: Colors.blue, height: 1)
+                      ])),
               ElevatedButton(
                   onPressed: _disconnectBluetooth,
                   child: const Text('Disconnect Bluetooth')),
               Text(connectedBtResult),
-              Text(serviceListResult),
+              ElevatedButton(
+                  onPressed: _getServices, child: const Text('Get Services')),
               Row(
                 children: [
                   SizedBox(
@@ -122,7 +123,9 @@ class _MyAppState extends State<MyApp> {
     try {
       _searchStream = btSearcher?.search().listen(cancelOnError: true, (event) {
         setState(() {
-          searchedBtResult = event.where((e) => (e as BluetoothResult).name?.isNotEmpty == true).toList();
+          searchedBtResult = event
+              .where((e) => (e as BluetoothResult).name?.isNotEmpty == true)
+              .toList();
         });
       });
     } catch (ex) {
@@ -146,10 +149,8 @@ class _MyAppState extends State<MyApp> {
     });
   }
 
-  Future<void> _connectBluetooth() async {
+  Future<void> _connectBluetooth(int index) async {
     try {
-      final index = int.parse(connectIndexController.text);
-
       setState(() {
         connectedBtResult = 'Connecting to device $index';
       });
@@ -157,12 +158,8 @@ class _MyAppState extends State<MyApp> {
       btDevice = BluetoothDevice(deviceSearcher, searchedBtResult[index]);
       await btDevice?.connect();
 
-      // final services = await btDevice?.getServices();
-
       setState(() {
-        connectedBtResult = 'connected to device $index';
-        serviceListResult =
-            'Services: ';
+        connectedBtResult = 'Connected to device $index';
       });
     } catch (ex) {
       setState(() {
@@ -177,6 +174,20 @@ class _MyAppState extends State<MyApp> {
 
       setState(() {
         connectedBtResult = "Disconnected from device";
+      });
+    } catch (ex) {
+      setState(() {
+        connectedBtResult = ex.toString();
+      });
+    }
+  }
+
+  Future<void> _getServices() async {
+    try {
+      final list = await btDevice?.getServices() ?? [];
+
+      setState(() {
+        serviceList = list;
       });
     } catch (ex) {
       setState(() {
