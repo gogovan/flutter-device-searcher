@@ -52,9 +52,29 @@ defaultConfig {
 
 1. Create a searcher according to connection technology desired. All searchers implement `DeviceSearcherInterface`.
    - For BLE, use `BluetoothSearcher`
-2. Invoke and listen to the `Stream` returned from `search()` method. `DeviceSearchResult`s are sent to your listener.
+2. Invoke and listen to the Dart `Stream` returned from `search()` method. Subclasses of `DeviceSearchResult`s are sent to your listener.
+   - For BLE, you will receive a `BluetoothResult`. 
+     - `id` is an identifier for the device, it being a MAC address (may be randomized) in Android and a random UUID in iOS.
+     - `name` is the display name for the device.
 ```dart
-final _searchStream = btSearcher?.search().listen(cancelOnError: true, (event) {
+final searchStream = btSearcher?.search().listen(cancelOnError: true, (event) {
   final id = event.id;
+  // Store the event for later connection.
 });
 ```
+3. Stop the search before connecting to a device, by cancelling the search stream. Failure to stop the search may cause inability to connect to devices in some phones.
+```dart
+   await searchStream.cancel();
+```
+4. To connect a device, create a `DeviceInterface` implementation such as `BluetoothDevice`, passing the device you want to connect. Then call `connect` to connect to the device.
+```dart
+  final btDevice = BluetoothDevice(deviceSearcher, searchedBtResult[index]);
+  await btDevice.connect();
+```
+5. After connecting to device, you may query available services and characteristics.
+```dart
+  final list = await btDevice.getServices();
+```
+6. Synchronous read/write from/to the device is done by `read` and `write` call respectively.
+7. Asynchronous read is done by `readAsStream` method, which returns a Dart `Stream`. Listen to stream to receive results.
+8. To disconnect from the device, 
