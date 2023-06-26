@@ -77,4 +77,7 @@ final searchStream = btSearcher?.search().listen(cancelOnError: true, (event) {
 ```
 6. Synchronous read/write from/to the device is done by `read` and `write` call respectively.
 7. Asynchronous read is done by `readAsStream` method, which returns a Dart `Stream`. Listen to stream to receive results.
-8. To disconnect from the device, 
+8. To disconnect from the device, call `disconnect` on the device.
+```dart
+  await btDevice.disconnect();
+```

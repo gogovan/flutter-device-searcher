@@ -61,7 +61,7 @@ class BluetoothDevice extends DeviceInterface {
   }
 
   @override
-  Future<bool> disconnectImpl() async => false;
+  Future<bool> disconnectImpl() async => true;
 
   Future<List<BluetoothService>> getServices() async {
     final id = deviceId;

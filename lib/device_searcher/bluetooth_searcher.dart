@@ -4,7 +4,6 @@ import 'package:flutter_device_searcher/device_searcher/device_searcher_interfac
 import 'package:flutter_device_searcher/exception/permission_denied_error.dart';
 import 'package:flutter_device_searcher/flutter_device_searcher.dart';
 import 'package:flutter_device_searcher/search_result/bluetooth_result.dart';
-import 'package:flutter_device_searcher/search_result/device_search_result.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:rxdart/rxdart.dart';
 
