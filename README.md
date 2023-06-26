@@ -14,8 +14,8 @@ defaultConfig {
 ```
 2. Setup required permissions according to OS and technology:
 
-### Bluetooth
-#### Android
+## Bluetooth
+### Android
 
 1. Add the following to your main `AndroidManifest.xml`.
    See [Android Developers](https://developer.android.com/guide/topics/connectivity/bluetooth/permissions)
@@ -43,8 +43,18 @@ defaultConfig {
 </manifest>
 ```
 
-#### iOS
+### iOS
 
 1. Include usage description keys for Bluetooth into `info.plist`.
    ![iOS XCode Bluetooth permission instruction](README_img/ios-bluetooth-perm.png)
 
+# Usage
+
+1. Create a searcher according to connection technology desired. All searchers implement `DeviceSearcherInterface`.
+   - For BLE, use `BluetoothSearcher`
+2. Invoke and listen to the `Stream` returned from `search()` method. `DeviceSearchResult`s are sent to your listener.
+```dart
+final _searchStream = btSearcher?.search().listen(cancelOnError: true, (event) {
+  final id = event.id;
+});
+```

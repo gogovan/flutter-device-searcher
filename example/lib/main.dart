@@ -165,7 +165,7 @@ Writable w/o response: ${item.isWritableWithoutResponse}
       _searchStream = btSearcher?.search().listen(cancelOnError: true, (event) {
         setState(() {
           searchedBtResult = event
-              .where((e) => (e as BluetoothResult).name?.isNotEmpty == true)
+              .where((e) => e.name?.isNotEmpty == true)
               .toList();
         });
       });
@@ -178,7 +178,6 @@ Writable w/o response: ${item.isWritableWithoutResponse}
 
   Future<void> _stopSearchBluetooth() async {
     try {
-      // await btSearcher?.stopSearch();
       await _searchStream?.cancel();
     } catch (ex) {
       setState(() {

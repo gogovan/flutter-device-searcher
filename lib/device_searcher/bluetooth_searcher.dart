@@ -9,7 +9,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:rxdart/rxdart.dart';
 
 /// Searcher for devices using Bluetooth.
-class BluetoothSearcher extends DeviceSearcherInterface {
+class BluetoothSearcher extends DeviceSearcherInterface<BluetoothResult> {
   BluetoothSearcher(this.searcher);
 
   final FlutterDeviceSearcher searcher;
@@ -18,7 +18,7 @@ class BluetoothSearcher extends DeviceSearcherInterface {
   /// Scan for Bluetooth devices.
   /// Will request for Bluetooth permission if none was granted yet.
   @override
-  Stream<List<DeviceSearchResult>> search() => [
+  Stream<List<BluetoothResult>> search() => [
         Permission.location,
         Permission.bluetoothScan,
         Permission.bluetoothConnect,
@@ -28,7 +28,7 @@ class BluetoothSearcher extends DeviceSearcherInterface {
             'Permission for Bluetooth denied.',
           );
         } else {
-          return <DeviceSearchResult>[];
+          return <BluetoothResult>[];
         }
       }).concatWith([
         searcher.flutterBle.scanForDevices(withServices: []).map((e) {
