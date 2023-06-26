@@ -71,22 +71,26 @@ class BluetoothDevice extends DeviceInterface {
 
     final service = await searcher.flutterBle.discoverServices(id);
 
-    return service.map(
-      (s) => BluetoothService(
-        serviceId: s.serviceId.toString(),
-        characteristics: s.characteristics.map(
-          (c) => BluetoothCharacteristic(
+    return service
+        .map(
+          (s) => BluetoothService(
             serviceId: s.serviceId.toString(),
-            characteristicId: c.characteristicId.toString(),
-            isReadable: c.isReadable,
-            isNotifiable: c.isNotifiable,
-            isWritableWithResponse: c.isWritableWithResponse,
-            isWritableWithoutResponse: c.isWritableWithoutResponse,
-            isIndicatable: c.isIndicatable,
+            characteristics: s.characteristics
+                .map(
+                  (c) => BluetoothCharacteristic(
+                    serviceId: s.serviceId.toString(),
+                    characteristicId: c.characteristicId.toString(),
+                    isReadable: c.isReadable,
+                    isNotifiable: c.isNotifiable,
+                    isWritableWithResponse: c.isWritableWithResponse,
+                    isWritableWithoutResponse: c.isWritableWithoutResponse,
+                    isIndicatable: c.isIndicatable,
+                  ),
+                )
+                .toList(),
           ),
-        ).toList(),
-      ),
-    ).toList();
+        )
+        .toList();
   }
 
   Future<List<int>> read(String serviceId, String characteristicId) async {
@@ -122,7 +126,7 @@ class BluetoothDevice extends DeviceInterface {
   Future<void> write(
     List<int> value,
     String serviceId,
-      String characteristicId,
+    String characteristicId,
   ) async {
     final id = deviceId;
     if (!isConnected() || id == null) {
