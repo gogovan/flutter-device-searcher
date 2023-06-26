@@ -1,3 +1,4 @@
+import 'package:flutter_device_searcher/device/bluetooth/bluetooth_service.dart';
 import 'package:flutter_device_searcher/device/device_interface.dart';
 import 'package:flutter_device_searcher/exception/device_connection_error.dart';
 import 'package:flutter_device_searcher/exception/invalid_connection_state_error.dart';
@@ -62,39 +63,56 @@ class BluetoothDevice extends DeviceInterface {
   @override
   Future<bool> disconnectImpl() async => false;
 
-  Future<List<DiscoveredService>> getServices() async {
+  Future<List<BluetoothService>> getServices() async {
     final id = deviceId;
     if (!isConnected() || id == null) {
       throw const InvalidConnectionStateError('Device not connected.');
     }
 
-    return searcher.flutterBle.discoverServices(id);
+    final service = await searcher.flutterBle.discoverServices(id);
+
+    return service.map(
+      (s) => BluetoothService(
+        serviceId: s.serviceId.toString(),
+        characteristics: s.characteristics.map(
+          (c) => BluetoothCharacteristic(
+            serviceId: s.serviceId.toString(),
+            characteristicId: c.characteristicId.toString(),
+            isReadable: c.isReadable,
+            isNotifiable: c.isNotifiable,
+            isWritableWithResponse: c.isWritableWithResponse,
+            isWritableWithoutResponse: c.isWritableWithoutResponse,
+            isIndicatable: c.isIndicatable,
+          ),
+        ).toList(),
+      ),
+    ).toList();
   }
 
-  Future<List<int>> read(Uuid serviceId, Uuid characteristicId) async {
+  Future<List<int>> read(String serviceId, String characteristicId) async {
     final id = deviceId;
     if (!isConnected() || id == null) {
       throw const InvalidConnectionStateError('Device not connected.');
     }
 
     final characteristic = QualifiedCharacteristic(
-      characteristicId: characteristicId,
-      serviceId: serviceId,
+      characteristicId: Uuid.parse(characteristicId),
+      serviceId: Uuid.parse(serviceId),
       deviceId: id,
     );
 
     return searcher.flutterBle.readCharacteristic(characteristic);
   }
 
-  Stream<List<int>> readAsStream(Uuid serviceId, Uuid characteristicId) {
+  Stream<List<int>> readAsStream(String serviceId, String characteristicId) {
     final id = deviceId;
     if (!isConnected() || id == null) {
       throw const InvalidConnectionStateError('Device not connected.');
     }
 
     final characteristic = QualifiedCharacteristic(
-      characteristicId: characteristicId,
-      serviceId: serviceId,
+      characteristicId: Uuid.parse(characteristicId),
+      serviceId: Uuid.parse(serviceId),
       deviceId: id,
     );
 
@@ -103,8 +121,8 @@ class BluetoothDevice extends DeviceInterface {
 
   Future<void> write(
     List<int> value,
-    Uuid serviceId,
-    Uuid characteristicId,
+    String serviceId,
+      String characteristicId,
   ) async {
     final id = deviceId;
     if (!isConnected() || id == null) {
@@ -112,8 +130,8 @@ class BluetoothDevice extends DeviceInterface {
     }
 
     final characteristic = QualifiedCharacteristic(
-      characteristicId: characteristicId,
-      serviceId: serviceId,
+      characteristicId: Uuid.parse(characteristicId),
+      serviceId: Uuid.parse(serviceId),
       deviceId: id,
     );
 

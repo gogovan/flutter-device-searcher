@@ -21,6 +21,7 @@ class BluetoothService {
 @immutable
 class BluetoothCharacteristic {
   const BluetoothCharacteristic({
+    required this.serviceId,
     required this.characteristicId,
     this.isReadable = false,
     this.isWritableWithResponse = false,
@@ -29,6 +30,7 @@ class BluetoothCharacteristic {
     this.isIndicatable = false,
   });
 
+  final String serviceId;
   final String characteristicId;
   final bool isReadable;
   final bool isWritableWithResponse;

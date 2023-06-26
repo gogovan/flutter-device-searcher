@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
 
-import 'package:flutter_device_searcher/device/bluetooth_device.dart';
+import 'package:flutter_device_searcher/device/bluetooth/bluetooth_device.dart';
+import 'package:flutter_device_searcher/device/bluetooth/bluetooth_service.dart';
 import 'package:flutter_device_searcher/device_searcher/bluetooth_searcher.dart';
 import 'package:flutter_device_searcher/flutter_device_searcher.dart';
 import 'package:flutter_device_searcher/search_result/bluetooth_result.dart';
@@ -30,9 +31,9 @@ class _MyAppState extends State<MyApp> {
   var searchedBtResult = <DeviceSearchResult>[];
   String connectedBtResult = 'Pending connection...';
 
-  List<DiscoveredService> serviceList = <DiscoveredService>[];
-  Uuid selectedServiceUuid = Uuid([]);
-  Uuid selectedCharacteristicUuid = Uuid([]);
+  List<BluetoothService> serviceList = <BluetoothService>[];
+  String selectedServiceUuid = "";
+  String selectedCharacteristicUuid = "";
 
   var readResult = 'Read Result';
   var readStreamResult = '';
@@ -98,7 +99,6 @@ class _MyAppState extends State<MyApp> {
                           Row(
                             children: [
                               Expanded(child: Text('''
-Service ${item.serviceId} 
 Characteristic ${item.characteristicId}
 Readable: ${item.isReadable}
 Indicatable: ${item.isIndicatable}
@@ -251,7 +251,7 @@ Writable w/o response: ${item.isWritableWithoutResponse}
   Future<void> _read() async {
     try {
       final result =
-          await btDevice!.read(selectedServiceUuid, selectedCharacteristicUuid);
+          await btDevice!.read(selectedServiceUuid.toString(), selectedCharacteristicUuid.toString());
       print('_read: ${result.toString()}');
       setState(() {
         readResult = String.fromCharCodes(result);
@@ -267,7 +267,7 @@ Writable w/o response: ${item.isWritableWithoutResponse}
     try {
       readStreamSubscription?.cancel();
       readStreamSubscription = btDevice!
-          .readAsStream(selectedServiceUuid, selectedCharacteristicUuid)
+          .readAsStream(selectedServiceUuid.toString(), selectedCharacteristicUuid.toString())
           .listen((event) {
         print('_readStream ${event.toString()}');
         setState(() {
