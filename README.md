@@ -18,7 +18,7 @@ defaultConfig {
 #### Android
 
 1. Add the following to your main `AndroidManifest.xml`.
-   See [Android Developers](https://developer.android.com/guide/topics/connectivity/bluetooth/permissions))
+   See [Android Developers](https://developer.android.com/guide/topics/connectivity/bluetooth/permissions)
    and [this StackOverflow answer](https://stackoverflow.com/a/70793272)
    for more information about permission settings.
 
