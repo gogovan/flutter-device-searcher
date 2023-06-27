@@ -99,6 +99,7 @@ class _MyAppState extends State<MyApp> {
                           Row(
                             children: [
                               Expanded(child: Text('''
+Service ${item.serviceId}
 Characteristic ${item.characteristicId}
 Readable: ${item.isReadable}
 Indicatable: ${item.isIndicatable}
