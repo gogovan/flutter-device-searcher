@@ -4,7 +4,6 @@ import 'dart:async';
 import 'package:flutter_device_searcher/device/bluetooth/bluetooth_device.dart';
 import 'package:flutter_device_searcher/device/bluetooth/bluetooth_service.dart';
 import 'package:flutter_device_searcher/device_searcher/bluetooth_searcher.dart';
-import 'package:flutter_device_searcher/flutter_device_searcher.dart';
 import 'package:flutter_device_searcher/search_result/bluetooth_result.dart';
 import 'package:flutter_device_searcher/search_result/device_search_result.dart';
 import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
@@ -21,7 +20,6 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  final deviceSearcher = FlutterDeviceSearcher();
   BluetoothSearcher? btSearcher;
 
   final writeController = TextEditingController();
@@ -43,9 +41,8 @@ class _MyAppState extends State<MyApp> {
   void initState() {
     super.initState();
 
-    deviceSearcher.logger.onRecord.listen(print);
-
-    btSearcher = BluetoothSearcher(deviceSearcher);
+    btSearcher = BluetoothSearcher();
+    btSearcher?.logger.onRecord.listen(print);
   }
 
   @override
@@ -196,7 +193,7 @@ Writable w/o response: ${item.isWritableWithoutResponse}
         connectedBtResult = 'Connecting to device $index';
       });
 
-      btDevice = BluetoothDevice(deviceSearcher, searchedBtResult[index]);
+      btDevice = BluetoothDevice(btSearcher!, searchedBtResult[index]);
       await btDevice?.connect();
 
       setState(() {
