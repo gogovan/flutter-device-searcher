@@ -24,7 +24,7 @@ class BluetoothDevice extends DeviceInterface {
       );
     }
 
-    if (searcher.searching) {
+    if (searcher.isSearching()) {
       // Some phones may misbehave when trying to connect a bluetooth device while scanning.
       // Ref https://github.com/dariuszseweryn/RxAndroidBle/wiki/FAQ:-Cannot-connect#connect-while-scanning.
       searcher.logger.warning(

@@ -16,7 +16,10 @@ abstract class DeviceSearcherInterface<T extends DeviceSearchResult> {
   Stream<List<T>> search();
 
   /// Indicates whether a device search is ongoing.
+  @protected
   bool searching = false;
+
+  bool isSearching() => searching;
 
   /// Logger for Flutter Device Searcher.
   final logger = Logger('flutter_device_searcher');
