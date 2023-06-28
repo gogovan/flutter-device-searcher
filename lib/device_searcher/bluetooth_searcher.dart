@@ -2,23 +2,20 @@ import 'dart:async';
 
 import 'package:flutter_device_searcher/device_searcher/device_searcher_interface.dart';
 import 'package:flutter_device_searcher/exception/permission_denied_error.dart';
-import 'package:flutter_device_searcher/flutter_device_searcher.dart';
 import 'package:flutter_device_searcher/search_result/bluetooth_result.dart';
-import 'package:flutter_device_searcher/search_result/device_search_result.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:rxdart/rxdart.dart';
 
 /// Searcher for devices using Bluetooth.
-class BluetoothSearcher extends DeviceSearcherInterface {
-  BluetoothSearcher(this.searcher);
+class BluetoothSearcher extends DeviceSearcherInterface<BluetoothResult> {
+  BluetoothSearcher();
 
-  final FlutterDeviceSearcher searcher;
-  final Set<BluetoothResult> foundDevices = {};
+  final Set<BluetoothResult> _foundDevices = {};
 
   /// Scan for Bluetooth devices.
   /// Will request for Bluetooth permission if none was granted yet.
   @override
-  Stream<List<DeviceSearchResult>> search() => [
+  Stream<List<BluetoothResult>> search() => [
         Permission.location,
         Permission.bluetoothScan,
         Permission.bluetoothConnect,
@@ -28,23 +25,23 @@ class BluetoothSearcher extends DeviceSearcherInterface {
             'Permission for Bluetooth denied.',
           );
         } else {
-          return <DeviceSearchResult>[];
+          return <BluetoothResult>[];
         }
       }).concatWith([
-        searcher.flutterBle.scanForDevices(withServices: []).map((e) {
-          searcher.logger.fine('Start scanning Bluetooth devices.');
-          searcher.searching = true;
+        flutterBle.scanForDevices(withServices: []).map((e) {
+          logger.fine('Start scanning Bluetooth devices.');
+          searching = true;
 
           final newResult = BluetoothResult(id: e.id, name: e.name);
 
           // ignore: avoid-ignoring-return-values, not needed.
-          foundDevices.add(newResult);
-          searcher.logger.finer('Found device $newResult');
+          _foundDevices.add(newResult);
+          logger.finer('Found device $newResult');
 
-          return foundDevices.toList();
+          return _foundDevices.toList();
         }),
       ]).doOnCancel(() {
-        searcher.logger.fine('Stop scanning Bluetooth devices.');
-        searcher.searching = false;
+        logger.fine('Stop scanning Bluetooth devices.');
+        searching = false;
       });
 }
