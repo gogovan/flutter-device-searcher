@@ -10,7 +10,7 @@ import 'package:rxdart/rxdart.dart';
 class BluetoothSearcher extends DeviceSearcherInterface<BluetoothResult> {
   BluetoothSearcher();
 
-  final Set<BluetoothResult> foundDevices = {};
+  final Set<BluetoothResult> _foundDevices = {};
 
   /// Scan for Bluetooth devices.
   /// Will request for Bluetooth permission if none was granted yet.
@@ -35,10 +35,10 @@ class BluetoothSearcher extends DeviceSearcherInterface<BluetoothResult> {
           final newResult = BluetoothResult(id: e.id, name: e.name);
 
           // ignore: avoid-ignoring-return-values, not needed.
-          foundDevices.add(newResult);
+          _foundDevices.add(newResult);
           logger.finer('Found device $newResult');
 
-          return foundDevices.toList();
+          return _foundDevices.toList();
         }),
       ]).doOnCancel(() {
         logger.fine('Stop scanning Bluetooth devices.');
