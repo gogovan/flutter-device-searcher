@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter_device_searcher/device_searcher/device_searcher_interface.dart';
 import 'package:flutter_device_searcher/exception/permission_denied_error.dart';
@@ -17,8 +18,9 @@ class BluetoothSearcher extends DeviceSearcherInterface<BluetoothResult> {
   @override
   Stream<List<BluetoothResult>> search() => [
         Permission.location,
-        Permission.bluetoothScan,
-        Permission.bluetoothConnect,
+        if (Platform.isAndroid) Permission.bluetoothScan,
+        if (Platform.isAndroid) Permission.bluetoothConnect,
+        if (Platform.isIOS) Permission.bluetooth,
       ].request().asStream().map((event) {
         if (event.values.any((element) => !element.isGranted)) {
           throw const PermissionDeniedError(
