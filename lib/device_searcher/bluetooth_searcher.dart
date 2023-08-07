@@ -17,7 +17,6 @@ class BluetoothSearcher extends DeviceSearcherInterface<BluetoothResult> {
   /// Will request for Bluetooth permission if none was granted yet.
   @override
   Stream<List<BluetoothResult>> search() => [
-        Permission.location,
         if (Platform.isAndroid) Permission.bluetoothScan,
         if (Platform.isAndroid) Permission.bluetoothConnect,
         if (Platform.isIOS) Permission.bluetooth,
