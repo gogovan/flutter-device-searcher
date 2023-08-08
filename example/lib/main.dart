@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
 
+import 'package:logging/logging.dart';
 import 'package:flutter_device_searcher/device/bluetooth/bluetooth_device.dart';
 import 'package:flutter_device_searcher/device/bluetooth/bluetooth_service.dart';
 import 'package:flutter_device_searcher/device_searcher/bluetooth_searcher.dart';
@@ -41,7 +42,9 @@ class _MyAppState extends State<MyApp> {
   void initState() {
     super.initState();
 
+    hierarchicalLoggingEnabled = true;
     btSearcher = BluetoothSearcher();
+    btSearcher?.logger.level = Level.FINEST;
     btSearcher?.logger.onRecord.listen(print);
   }
 

@@ -14,13 +14,13 @@ class BluetoothDevice extends DeviceInterface {
   BluetoothDevice(this.searcher, super.device);
 
   final DeviceSearcherInterface searcher;
-  String? deviceId;
+  BluetoothResult? device;
 
   @override
-  Future<bool> connectImpl(DeviceSearchResult device) {
-    if (device is! BluetoothResult) {
+  Future<bool> connectImpl(DeviceSearchResult inDevice) {
+    if (inDevice is! BluetoothResult) {
       throw InvalidDeviceResultError(
-        'Expected BluetoothResult. Received ${device.runtimeType}',
+        'Expected BluetoothResult. Received ${inDevice.runtimeType}',
       );
     }
 
@@ -32,7 +32,7 @@ class BluetoothDevice extends DeviceInterface {
       );
     }
 
-    deviceId = device.id;
+    device = inDevice;
 
     searcher.logger.fine('Connecting to device $device');
 
@@ -42,8 +42,8 @@ class BluetoothDevice extends DeviceInterface {
     return TimerStream<bool>(false, const Duration(seconds: 1)).concatWith(
       [
         searcher.flutterBle
-            .connectToDevice(id: device.id)
-            .where((event) => event.deviceId == deviceId)
+            .connectToDevice(id: inDevice.id)
+            .where((event) => event.deviceId == inDevice.id)
             .map(
           (event) {
             searcher.logger.finer('Detected connect state: $event');
@@ -64,10 +64,17 @@ class BluetoothDevice extends DeviceInterface {
   Future<bool> disconnectImpl() async => true;
 
   Future<List<BluetoothService>> getServices() async {
-    final id = deviceId;
+    final id = device?.id;
     if (!isConnected() || id == null) {
       throw const InvalidConnectionStateError('Device not connected.');
     }
+
+    final serviceIds = device?.serviceIds;
+    if (serviceIds == null || serviceIds.isEmpty) {
+      return [];
+    }
+
+    searcher.logger.finer('Getting services of Device $id with services $serviceIds');
 
     final service = await searcher.flutterBle.discoverServices(id);
 
@@ -94,7 +101,7 @@ class BluetoothDevice extends DeviceInterface {
   }
 
   Future<List<int>> read(String serviceId, String characteristicId) async {
-    final id = deviceId;
+    final id = device?.id;
     if (!isConnected() || id == null) {
       throw const InvalidConnectionStateError('Device not connected.');
     }
@@ -109,7 +116,7 @@ class BluetoothDevice extends DeviceInterface {
   }
 
   Stream<List<int>> readAsStream(String serviceId, String characteristicId) {
-    final id = deviceId;
+    final id = device?.id;
     if (!isConnected() || id == null) {
       throw const InvalidConnectionStateError('Device not connected.');
     }
@@ -128,7 +135,7 @@ class BluetoothDevice extends DeviceInterface {
     String serviceId,
     String characteristicId,
   ) async {
-    final id = deviceId;
+    final id = device?.id;
     if (!isConnected() || id == null) {
       throw const InvalidConnectionStateError('Device not connected.');
     }

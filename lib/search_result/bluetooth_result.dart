@@ -3,22 +3,22 @@ import 'package:flutter_device_searcher/search_result/device_search_result.dart'
 
 @immutable
 class BluetoothResult implements DeviceSearchResult {
-  const BluetoothResult({required this.id, this.name});
+  const BluetoothResult({required this.id, this.name, this.serviceIds = const []});
 
   final String id;
   final String? name;
+  final List<String> serviceIds;
 
   @override
-  String toString() => 'BluetoothResult{address: $id, name: $name}';
+  String toString() => 'BluetoothResult{id: $id, name: $name, serviceIds: $serviceIds}';
 
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       other is BluetoothResult &&
           runtimeType == other.runtimeType &&
-          id == other.id &&
-          name == other.name;
+          id == other.id;
 
   @override
-  int get hashCode => id.hashCode ^ name.hashCode;
+  int get hashCode => id.hashCode;
 }

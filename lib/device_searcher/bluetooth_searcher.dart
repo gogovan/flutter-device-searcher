@@ -28,12 +28,16 @@ class BluetoothSearcher extends DeviceSearcherInterface<BluetoothResult> {
         } else {
           return <BluetoothResult>[];
         }
+      }).doOnListen(() {
+        logger.fine('Start scanning Bluetooth devices.');
+        searching = true;
       }).concatWith([
         flutterBle.scanForDevices(withServices: []).map((e) {
-          logger.fine('Start scanning Bluetooth devices.');
-          searching = true;
-
-          final newResult = BluetoothResult(id: e.id, name: e.name);
+          final newResult = BluetoothResult(
+            id: e.id,
+            name: e.name,
+            serviceIds: e.serviceUuids.map((e) => e.toString()).toList(),
+          );
 
           // ignore: avoid-ignoring-return-values, not needed.
           _foundDevices.add(newResult);
