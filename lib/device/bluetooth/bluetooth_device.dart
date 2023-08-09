@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_device_searcher/device/bluetooth/bluetooth_service.dart';
 import 'package:flutter_device_searcher/device/device_interface.dart';
 import 'package:flutter_device_searcher/device_searcher/device_searcher_interface.dart';
@@ -14,13 +16,15 @@ class BluetoothDevice extends DeviceInterface {
   BluetoothDevice(this.searcher, super.device);
 
   final DeviceSearcherInterface searcher;
-  String? deviceId;
+  BluetoothResult? device;
+
+  StreamSubscription<bool>? connection;
 
   @override
-  Future<bool> connectImpl(DeviceSearchResult device) {
-    if (device is! BluetoothResult) {
+  Future<bool> connectImpl(DeviceSearchResult inDevice) {
+    if (inDevice is! BluetoothResult) {
       throw InvalidDeviceResultError(
-        'Expected BluetoothResult. Received ${device.runtimeType}',
+        'Expected BluetoothResult. Received ${inDevice.runtimeType}',
       );
     }
 
@@ -32,18 +36,21 @@ class BluetoothDevice extends DeviceInterface {
       );
     }
 
-    deviceId = device.id;
+    device = inDevice;
 
     searcher.logger.fine('Connecting to device $device');
+
+    final completer = Completer<bool>();
 
     // Some phones may misbehave when trying to connect a bluetooth device right after stopping scan.
     // Adding a 1 sec delay make it more reliable.
     // Ref https://github.com/dariuszseweryn/RxAndroidBle/wiki/FAQ:-Cannot-connect#connect-right-after-scanning.
-    return TimerStream<bool>(false, const Duration(seconds: 1)).concatWith(
+    connection =
+        TimerStream<bool>(false, const Duration(seconds: 1)).concatWith(
       [
         searcher.flutterBle
-            .connectToDevice(id: device.id)
-            .where((event) => event.deviceId == deviceId)
+            .connectToDevice(id: inDevice.id)
+            .where((event) => event.deviceId == inDevice.id)
             .map(
           (event) {
             searcher.logger.finer('Detected connect state: $event');
@@ -57,18 +64,37 @@ class BluetoothDevice extends DeviceInterface {
           },
         ),
       ],
-    ).firstWhere((x) => x);
+    ).listen((event) {
+      if (event) {
+        completer.complete(true);
+      }
+    });
+
+    return completer.future;
   }
 
   @override
-  Future<bool> disconnectImpl() async => true;
+  Future<bool> disconnectImpl() async {
+    await connection?.cancel();
+    return true;
+  }
 
   Future<List<BluetoothService>> getServices() async {
-    final id = deviceId;
+    final id = device?.id;
     if (!isConnected() || id == null) {
       throw const InvalidConnectionStateError('Device not connected.');
     }
 
+    final serviceIds = device?.serviceIds;
+    if (serviceIds == null || serviceIds.isEmpty) {
+      return [];
+    }
+
+    searcher.logger
+        .finer('Getting services of Device $id with services $serviceIds');
+
+    await searcher.flutterBle.statusStream
+        .firstWhere((element) => element == BleStatus.ready);
     final service = await searcher.flutterBle.discoverServices(id);
 
     return service
@@ -94,7 +120,7 @@ class BluetoothDevice extends DeviceInterface {
   }
 
   Future<List<int>> read(String serviceId, String characteristicId) async {
-    final id = deviceId;
+    final id = device?.id;
     if (!isConnected() || id == null) {
       throw const InvalidConnectionStateError('Device not connected.');
     }
@@ -109,7 +135,7 @@ class BluetoothDevice extends DeviceInterface {
   }
 
   Stream<List<int>> readAsStream(String serviceId, String characteristicId) {
-    final id = deviceId;
+    final id = device?.id;
     if (!isConnected() || id == null) {
       throw const InvalidConnectionStateError('Device not connected.');
     }
@@ -128,7 +154,7 @@ class BluetoothDevice extends DeviceInterface {
     String serviceId,
     String characteristicId,
   ) async {
-    final id = deviceId;
+    final id = device?.id;
     if (!isConnected() || id == null) {
       throw const InvalidConnectionStateError('Device not connected.');
     }
