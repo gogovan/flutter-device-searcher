@@ -45,7 +45,8 @@ class BluetoothDevice extends DeviceInterface {
     // Some phones may misbehave when trying to connect a bluetooth device right after stopping scan.
     // Adding a 1 sec delay make it more reliable.
     // Ref https://github.com/dariuszseweryn/RxAndroidBle/wiki/FAQ:-Cannot-connect#connect-right-after-scanning.
-    connection = TimerStream<bool>(false, const Duration(seconds: 1)).concatWith(
+    connection =
+        TimerStream<bool>(false, const Duration(seconds: 1)).concatWith(
       [
         searcher.flutterBle
             .connectToDevice(id: inDevice.id)
@@ -89,9 +90,11 @@ class BluetoothDevice extends DeviceInterface {
       return [];
     }
 
-    searcher.logger.finer('Getting services of Device $id with services $serviceIds');
+    searcher.logger
+        .finer('Getting services of Device $id with services $serviceIds');
 
-    await searcher.flutterBle.statusStream.firstWhere((element) => element == BleStatus.ready);
+    await searcher.flutterBle.statusStream
+        .firstWhere((element) => element == BleStatus.ready);
     final service = await searcher.flutterBle.discoverServices(id);
 
     return service
