@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_device_searcher/device/bluetooth/bluetooth_service.dart';
 import 'package:flutter_device_searcher/device/device_interface.dart';
 import 'package:flutter_device_searcher/device_searcher/device_searcher_interface.dart';
@@ -15,6 +17,8 @@ class BluetoothDevice extends DeviceInterface {
 
   final DeviceSearcherInterface searcher;
   BluetoothResult? device;
+
+  StreamSubscription<bool>? connection;
 
   @override
   Future<bool> connectImpl(DeviceSearchResult inDevice) {
@@ -36,10 +40,12 @@ class BluetoothDevice extends DeviceInterface {
 
     searcher.logger.fine('Connecting to device $device');
 
+    final completer = Completer<bool>();
+
     // Some phones may misbehave when trying to connect a bluetooth device right after stopping scan.
     // Adding a 1 sec delay make it more reliable.
     // Ref https://github.com/dariuszseweryn/RxAndroidBle/wiki/FAQ:-Cannot-connect#connect-right-after-scanning.
-    return TimerStream<bool>(false, const Duration(seconds: 1)).concatWith(
+    connection = TimerStream<bool>(false, const Duration(seconds: 1)).concatWith(
       [
         searcher.flutterBle
             .connectToDevice(id: inDevice.id)
@@ -57,11 +63,20 @@ class BluetoothDevice extends DeviceInterface {
           },
         ),
       ],
-    ).firstWhere((x) => x);
+    ).listen((event) {
+      if (event) {
+        completer.complete(true);
+      }
+    });
+
+    return completer.future;
   }
 
   @override
-  Future<bool> disconnectImpl() async => true;
+  Future<bool> disconnectImpl() async {
+    await connection?.cancel();
+    return true;
+  }
 
   Future<List<BluetoothService>> getServices() async {
     final id = device?.id;
@@ -76,6 +91,7 @@ class BluetoothDevice extends DeviceInterface {
 
     searcher.logger.finer('Getting services of Device $id with services $serviceIds');
 
+    await searcher.flutterBle.statusStream.firstWhere((element) => element == BleStatus.ready);
     final service = await searcher.flutterBle.discoverServices(id);
 
     return service

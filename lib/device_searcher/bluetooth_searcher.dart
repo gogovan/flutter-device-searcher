@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:flutter_device_searcher/device_searcher/device_searcher_interface.dart';
 import 'package:flutter_device_searcher/exception/permission_denied_error.dart';
 import 'package:flutter_device_searcher/search_result/bluetooth_result.dart';
+import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:rxdart/rxdart.dart';
 
@@ -32,6 +33,10 @@ class BluetoothSearcher extends DeviceSearcherInterface<BluetoothResult> {
         logger.fine('Start scanning Bluetooth devices.');
         searching = true;
       }).concatWith([
+        flutterBle.statusStream
+            .firstWhere((element) => element == BleStatus.ready)
+            .asStream()
+            .map((event) => []),
         flutterBle.scanForDevices(withServices: []).map((e) {
           final newResult = BluetoothResult(
             id: e.id,
