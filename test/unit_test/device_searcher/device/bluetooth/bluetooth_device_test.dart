@@ -71,7 +71,9 @@ void main() {
 
     test('connect failure', () async {
       await expectLater(
-          device.connect(), emitsError(isA<DeviceConnectionError>()));
+        device.connect(),
+        emitsError(isA<DeviceConnectionError>()),
+      );
     });
   });
 
@@ -167,19 +169,21 @@ void main() {
       test('read', () async {
         await expectLater(device.connect(), emitsInOrder([true]));
         await expectLater(
-            device.read(serviceId, characteristicId),
-            emitsInOrder([
-              [2, 5, 10]
-            ]));
+          device.read(serviceId, characteristicId),
+          emitsInOrder([
+            [2, 5, 10],
+          ]),
+        );
       });
 
       test('readAsStream', () async {
         await expectLater(device.connect(), emitsInOrder([true]));
         await expectLater(
-            device.readAsStream(serviceId, characteristicId),
-            emitsInOrder([
-              [3, 4, 5]
-            ]));
+          device.readAsStream(serviceId, characteristicId),
+          emitsInOrder([
+            [3, 4, 5],
+          ]),
+        );
       });
 
       test('write', () async {

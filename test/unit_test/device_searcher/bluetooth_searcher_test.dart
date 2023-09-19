@@ -1,7 +1,7 @@
 import 'dart:typed_data';
 
 import 'package:flutter/foundation.dart';
-import 'package:flutter_device_searcher/PermissionWrapper.dart';
+import 'package:flutter_device_searcher/permission_wrapper.dart';
 import 'package:flutter_device_searcher/device_searcher/bluetooth_searcher.dart';
 import 'package:flutter_device_searcher/exception/permission_denied_error.dart';
 import 'package:flutter_device_searcher/search_result/bluetooth_result.dart';
@@ -112,7 +112,7 @@ void main() {
   group('permission not granted', () {
     setUp(() {
       when(permissionWrapper.requestBluetoothPermissions()).thenAnswer(
-            (_) => Future.value({
+        (_) => Future.value({
           Permission.bluetooth: PermissionStatus.permanentlyDenied,
           Permission.bluetoothConnect: PermissionStatus.permanentlyDenied,
           Permission.bluetoothScan: PermissionStatus.permanentlyDenied,
