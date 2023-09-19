@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
+import 'package:flutter_device_searcher/PermissionWrapper.dart';
 import 'package:flutter_device_searcher/device_searcher/device_searcher_interface.dart';
 import 'package:flutter_device_searcher/exception/permission_denied_error.dart';
 import 'package:flutter_device_searcher/search_result/bluetooth_result.dart';
@@ -11,21 +13,25 @@ import 'package:rxdart/rxdart.dart';
 
 /// Searcher for devices using Bluetooth.
 class BluetoothSearcher extends DeviceSearcherInterface<BluetoothResult> {
-  BluetoothSearcher();
+  BluetoothSearcher()
+      : flutterBle = FlutterReactiveBle(),
+        permissionWrapper = PermissionWrapper();
+
+  @visibleForTesting
+  BluetoothSearcher.withBle(this.flutterBle, this.permissionWrapper);
 
   @internal
-  final flutterBle = FlutterReactiveBle();
+  final FlutterReactiveBle flutterBle;
+
+  final PermissionWrapper permissionWrapper;
 
   final Set<BluetoothResult> _foundDevices = {};
 
   /// Scan for Bluetooth devices.
   /// Will request for Bluetooth permission if none was granted yet.
   @override
-  Stream<List<BluetoothResult>> search() => [
-        if (Platform.isAndroid) Permission.bluetoothScan,
-        if (Platform.isAndroid) Permission.bluetoothConnect,
-        if (Platform.isIOS) Permission.bluetooth,
-      ].request().asStream().map((event) {
+  Stream<List<BluetoothResult>> search() =>
+      permissionWrapper.requestBluetoothPermissions().asStream().map((event) {
         if (event.values.any((element) => !element.isGranted)) {
           throw const PermissionDeniedError(
             'Permission for Bluetooth denied.',
