@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter_device_searcher/device/bluetooth/bluetooth_service.dart';
 import 'package:flutter_device_searcher/device/device_interface.dart';
-import 'package:flutter_device_searcher/device_searcher/device_searcher_interface.dart';
+import 'package:flutter_device_searcher/device_searcher/bluetooth_searcher.dart';
 import 'package:flutter_device_searcher/exception/device_connection_error.dart';
 import 'package:flutter_device_searcher/exception/invalid_connection_state_error.dart';
 import 'package:flutter_device_searcher/exception/invalid_device_result_error.dart';
@@ -15,7 +15,7 @@ import 'package:rxdart/rxdart.dart';
 class BluetoothDevice extends DeviceInterface {
   BluetoothDevice(this.searcher, super.device);
 
-  final DeviceSearcherInterface searcher;
+  final BluetoothSearcher searcher;
   BluetoothResult? device;
 
   StreamSubscription<bool>? connection;
