@@ -11,9 +11,10 @@ jobs:
         with:
           channel: 'stable'
 
-      - name: Install dependencies
+      - name: Install dependencies and setup
         run: |
           flutter pub get
+          dart run build_runner build
 
       - name: Check code is formatted
         run: |
