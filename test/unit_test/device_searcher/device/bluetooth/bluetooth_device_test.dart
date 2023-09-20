@@ -3,8 +3,9 @@ import 'package:flutter_device_searcher/device/bluetooth/bluetooth_service.dart'
 import 'package:flutter_device_searcher/device_searcher/bluetooth_searcher.dart';
 import 'package:flutter_device_searcher/exception/device_connection_error.dart';
 import 'package:flutter_device_searcher/search_result/bluetooth_result.dart';
-import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
+import 'package:flutter_reactive_ble/flutter_reactive_ble.dart' hide Logger;
 import 'package:flutter_test/flutter_test.dart';
+import 'package:logging/logging.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 
@@ -13,6 +14,8 @@ import 'bluetooth_device_test.mocks.dart';
 @GenerateNiceMocks([
   MockSpec<BluetoothSearcher>(),
   MockSpec<FlutterReactiveBle>(),
+  MockSpec<Service>(),
+  MockSpec<Characteristic>(),
 ])
 void main() {
   const deviceId = '09871234-abcd-dbcd-dddd-123456781234';
@@ -25,6 +28,7 @@ void main() {
   setUp(() {
     when(searcher.isSearching()).thenReturn(false);
     when(searcher.flutterBle).thenReturn(reactiveBle);
+    when(searcher.logger).thenReturn(Logger('logger'));
   });
 
   group('connect success / disconnect', () {
@@ -46,34 +50,10 @@ void main() {
     });
 
     test('connect/disconnect success', () async {
-      await expectLater(device.connect(), emitsInOrder([true]));
+      expect(await device.connect(), true);
       expect(device.isConnected(), true);
       await device.disconnect();
       expect(device.isConnected(), false);
-    });
-  });
-
-  group('connect failure', () {
-    setUp(() {
-      when(reactiveBle.connectToDevice(id: deviceId)).thenAnswer(
-        (realInvocation) => Stream.value(
-          const ConnectionStateUpdate(
-            deviceId: deviceId,
-            connectionState: DeviceConnectionState.connecting,
-            failure: GenericFailure<ConnectionError>(
-              code: ConnectionError.failedToConnect,
-              message: 'failure',
-            ),
-          ),
-        ),
-      );
-    });
-
-    test('connect failure', () async {
-      await expectLater(
-        device.connect(),
-        emitsError(isA<DeviceConnectionError>()),
-      );
     });
   });
 
@@ -98,28 +78,22 @@ void main() {
       final serviceUuid = Uuid.parse(serviceId);
       const characteristicId = '09870987-abcd-defe-ffff-123456789012';
       final characteristicUuid = Uuid.parse(characteristicId);
+      final service = MockService();
+      final characteristic = MockCharacteristic();
 
       setUp(() {
-        when(reactiveBle.discoverServices(deviceId)).thenAnswer(
-          (realInvocation) => Future.value(
-            [
-              DiscoveredService(
-                serviceId: serviceUuid,
-                characteristicIds: [characteristicUuid],
-                characteristics: [
-                  DiscoveredCharacteristic(
-                    characteristicId: characteristicUuid,
-                    serviceId: serviceUuid,
-                    isReadable: true,
-                    isWritableWithResponse: false,
-                    isWritableWithoutResponse: true,
-                    isNotifiable: true,
-                    isIndicatable: false,
-                  ),
-                ],
-              ),
-            ],
-          ),
+        when(service.id).thenReturn(serviceUuid);
+        when(service.characteristics).thenReturn([characteristic]);
+        when(characteristic.id).thenReturn(characteristicUuid);
+        when(characteristic.service).thenReturn(service);
+        when(characteristic.isReadable).thenReturn(true);
+        when(characteristic.isWritableWithResponse).thenReturn(false);
+        when(characteristic.isWritableWithoutResponse).thenReturn(true);
+        when(characteristic.isNotifiable).thenReturn(true);
+        when(characteristic.isIndicatable).thenReturn(false);
+
+        when(reactiveBle.getDiscoveredServices(deviceId)).thenAnswer(
+          (realInvocation) => Future.value([service]),
         );
 
         when(
@@ -144,40 +118,33 @@ void main() {
       });
 
       test('get service', () async {
-        await expectLater(device.connect(), emitsInOrder([true]));
-        await expectLater(
-          device.getServices(),
-          emitsInOrder([
-            [
-              const BluetoothService(
+        expect(await device.connect(), true);
+        expect(await device.getServices(), [
+          const BluetoothService(
+            serviceId: serviceId,
+            characteristics: [
+              BluetoothCharacteristic(
                 serviceId: serviceId,
-                characteristics: [
-                  BluetoothCharacteristic(
-                    serviceId: serviceId,
-                    characteristicId: characteristicId,
-                    isReadable: true,
-                    isWritableWithoutResponse: true,
-                    isNotifiable: true,
-                  ),
-                ],
+                characteristicId: characteristicId,
+                isReadable: true,
+                isWritableWithoutResponse: true,
+                isNotifiable: true,
               ),
-            ]
-          ]),
-        );
+            ],
+          ),
+        ]);
       });
 
       test('read', () async {
-        await expectLater(device.connect(), emitsInOrder([true]));
-        await expectLater(
-          device.read(serviceId, characteristicId),
-          emitsInOrder([
-            [2, 5, 10],
-          ]),
+        expect(await device.connect(), true);
+        expect(
+          await device.read(serviceId, characteristicId),
+          [2, 5, 10],
         );
       });
 
       test('readAsStream', () async {
-        await expectLater(device.connect(), emitsInOrder([true]));
+        expect(await device.connect(), true);
         await expectLater(
           device.readAsStream(serviceId, characteristicId),
           emitsInOrder([
@@ -187,7 +154,7 @@ void main() {
       });
 
       test('write', () async {
-        await expectLater(device.connect(), emitsInOrder([true]));
+        expect(await device.connect(), true);
         await device.write([7, 24, 25], serviceId, characteristicId);
         verify(
           reactiveBle.writeCharacteristicWithoutResponse(

@@ -95,17 +95,17 @@ class BluetoothDevice extends DeviceInterface {
 
     await searcher.flutterBle.statusStream
         .firstWhere((element) => element == BleStatus.ready);
-    final service = await searcher.flutterBle.discoverServices(id);
+    final service = await searcher.flutterBle.getDiscoveredServices(id);
 
     return service
         .map(
           (s) => BluetoothService(
-            serviceId: s.serviceId.toString(),
+            serviceId: s.id.toString(),
             characteristics: s.characteristics
                 .map(
                   (c) => BluetoothCharacteristic(
-                    serviceId: s.serviceId.toString(),
-                    characteristicId: c.characteristicId.toString(),
+                    serviceId: s.id.toString(),
+                    characteristicId: c.id.toString(),
                     isReadable: c.isReadable,
                     isNotifiable: c.isNotifiable,
                     isWritableWithResponse: c.isWritableWithResponse,
