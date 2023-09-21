@@ -11,9 +11,9 @@ jobs:
         with:
           channel: 'stable'
 
-      - name: Install dependencies
+      - name: Install dependencies and setup
         run: |
-          flutter pub get
+          ./setup.sh
 
       - name: Check code is formatted
         run: |
@@ -23,3 +23,10 @@ jobs:
       - name: Analyze code
         run: flutter analyze --fatal-infos --fatal-warnings
 
+      - name: run tests
+        run: flutter test --coverage
+
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v3
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
