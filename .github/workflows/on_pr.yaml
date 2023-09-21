@@ -13,8 +13,7 @@ jobs:
 
       - name: Install dependencies and setup
         run: |
-          flutter pub get
-          dart run build_runner build
+          ./setup.sh
 
       - name: Check code is formatted
         run: |
@@ -23,6 +22,9 @@ jobs:
 
       - name: Analyze code
         run: flutter analyze --fatal-infos --fatal-warnings
+
+      - name: run tests
+        run: flutter test --coverage
 
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v3
