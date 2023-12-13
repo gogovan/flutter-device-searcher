@@ -64,11 +64,16 @@ class BluetoothDevice extends DeviceInterface {
           },
         ),
       ],
-    ).listen((event) {
-      if (event) {
-        completer.complete(true);
-      }
-    });
+    ).listen(
+      (event) {
+        if (event) {
+          completer.complete(true);
+        }
+      },
+      onError: (event) {
+        completer.completeError(event);
+      },
+    );
 
     return completer.future;
   }
