@@ -12,7 +12,10 @@ abstract class DeviceInterface {
   bool _connected = false;
 
   /// Whether the device has been connected.
-  @nonVirtual
+  /// Implementors: This method only check if `connect()` is called and `disconnect()` has not been called.
+  /// If there is a underlying connection to maintain, override this method to return the actual connection status,
+  /// in conjunction to the state maintained by the DeviceInterface.
+  @mustCallSuper
   bool isConnected() => _connected;
 
   /// Connect to the specified device.

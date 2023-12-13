@@ -21,6 +21,9 @@ class BluetoothDevice extends DeviceInterface {
   StreamSubscription<bool>? connection;
 
   @override
+  bool isConnected() => super.isConnected() && searcher.isReady();
+
+  @override
   Future<bool> connectImpl(DeviceSearchResult inDevice) {
     if (inDevice is! BluetoothResult) {
       throw InvalidDeviceResultError(

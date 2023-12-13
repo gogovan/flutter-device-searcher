@@ -62,4 +62,7 @@ class BluetoothSearcher extends DeviceSearcherInterface<BluetoothResult> {
         logger.fine('Stop scanning Bluetooth devices.');
         searching = false;
       });
+
+  bool isReady() => flutterBle.status == BleStatus.ready;
+
 }
