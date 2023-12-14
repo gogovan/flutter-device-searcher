@@ -28,6 +28,7 @@ void main() {
     when(searcher.isSearching()).thenReturn(false);
     when(searcher.flutterBle).thenReturn(reactiveBle);
     when(searcher.logger).thenReturn(Logger('logger'));
+    when(searcher.isReady()).thenReturn(true);
   });
 
   group('connect success / disconnect', () {
