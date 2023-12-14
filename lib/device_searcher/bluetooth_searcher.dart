@@ -64,5 +64,4 @@ class BluetoothSearcher extends DeviceSearcherInterface<BluetoothResult> {
       });
 
   bool isReady() => flutterBle.status == BleStatus.ready;
-
 }
