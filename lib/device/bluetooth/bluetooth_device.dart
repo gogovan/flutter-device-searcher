@@ -21,6 +21,9 @@ class BluetoothDevice extends DeviceInterface {
   StreamSubscription<bool>? connection;
 
   @override
+  bool isConnected() => super.isConnected() && searcher.isReady();
+
+  @override
   Future<bool> connectImpl(DeviceSearchResult inDevice) {
     if (inDevice is! BluetoothResult) {
       throw InvalidDeviceResultError(
@@ -64,11 +67,16 @@ class BluetoothDevice extends DeviceInterface {
           },
         ),
       ],
-    ).listen((event) {
-      if (event) {
-        completer.complete(true);
-      }
-    });
+    ).listen(
+      (event) {
+        if (event) {
+          completer.complete(true);
+        }
+      },
+      onError: (event) {
+        completer.completeError(event);
+      },
+    );
 
     return completer.future;
   }
