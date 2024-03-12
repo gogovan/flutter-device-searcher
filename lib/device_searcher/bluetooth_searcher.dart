@@ -28,7 +28,10 @@ class BluetoothSearcher extends DeviceSearcherInterface<BluetoothResult> {
   /// Scan for Bluetooth devices.
   /// Will request for Bluetooth permission if none was granted yet.
   @override
-  Stream<List<BluetoothResult>> search({Duration timeout = Duration.zero}) =>
+  Stream<List<BluetoothResult>> search({
+    Duration timeout = Duration.zero,
+    void Function()? onTimeout,
+  }) =>
       permissionWrapper.requestBluetoothPermissions().asStream().map((event) {
         if (event.values.any((element) => !element.isGranted)) {
           throw const PermissionDeniedError(
@@ -45,18 +48,19 @@ class BluetoothSearcher extends DeviceSearcherInterface<BluetoothResult> {
           flutterBle.statusStream
               .firstWhere((element) => element == BleStatus.ready)
               .asStream()
-              .timeout(timeout)
-              .map((event) => []),
+              .timeout(timeout, onTimeout: (_) {
+            onTimeout?.call();
+          }).map((event) => []),
         if (timeout <= Duration.zero)
           flutterBle.statusStream
               .firstWhere((element) => element == BleStatus.ready)
               .asStream()
               .map((event) => []),
         if (timeout > Duration.zero)
-          flutterBle
-              .scanForDevices(withServices: [])
-              .timeout(timeout)
-              .map(_deviceToResult),
+          flutterBle.scanForDevices(withServices: []).timeout(timeout,
+              onTimeout: (_) {
+            onTimeout?.call();
+          }).map(_deviceToResult),
         if (timeout <= Duration.zero)
           flutterBle.scanForDevices(withServices: []).map(_deviceToResult),
       ]).doOnCancel(() {

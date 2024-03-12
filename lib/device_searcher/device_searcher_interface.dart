@@ -12,8 +12,11 @@ abstract class DeviceSearcherInterface<T extends DeviceSearchResult> {
   /// These devices should be indicated by an ID stored in a `DeviceSearchResult` instance.
   /// Such IDs should be able to be used to connect a specified device.
   /// 2. The search should be stopped when the returned stream is cancelled.
-  /// 3. Use the provided timeout, if greater than zero, and stop searching if the timeout is reached.
-  Stream<List<T>> search({Duration timeout = Duration.zero});
+  /// 3. Use the provided timeout, if greater than zero, and stop searching if the timeout is reached and invoke onTimeout if provided.
+  Stream<List<T>> search({
+    Duration timeout = Duration.zero,
+    void Function()? onTimeout,
+  });
 
   /// Indicates whether a device search is ongoing.
   @protected
