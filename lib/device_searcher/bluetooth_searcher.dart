@@ -28,7 +28,10 @@ class BluetoothSearcher extends DeviceSearcherInterface<BluetoothResult> {
   /// Scan for Bluetooth devices.
   /// Will request for Bluetooth permission if none was granted yet.
   @override
-  Stream<List<BluetoothResult>> search() =>
+  Stream<List<BluetoothResult>> search({
+    Duration timeout = Duration.zero,
+    void Function()? onTimeout,
+  }) =>
       permissionWrapper.requestBluetoothPermissions().asStream().map((event) {
         if (event.values.any((element) => !element.isGranted)) {
           throw const PermissionDeniedError(
@@ -41,27 +44,48 @@ class BluetoothSearcher extends DeviceSearcherInterface<BluetoothResult> {
         logger.fine('Start scanning Bluetooth devices.');
         searching = true;
       }).concatWith([
-        flutterBle.statusStream
-            .firstWhere((element) => element == BleStatus.ready)
-            .asStream()
-            .map((event) => []),
-        flutterBle.scanForDevices(withServices: []).map((e) {
-          final newResult = BluetoothResult(
-            id: e.id,
-            name: e.name,
-            serviceIds: e.serviceUuids.map((e) => e.toString()).toList(),
-          );
-
-          // ignore: avoid-ignoring-return-values, not needed.
-          _foundDevices.add(newResult);
-          logger.finer('Found device $newResult');
-
-          return _foundDevices.toList();
-        }),
+        if (timeout > Duration.zero)
+          flutterBle.statusStream
+              .firstWhere((element) => element == BleStatus.ready)
+              .asStream()
+              .timeout(
+            timeout,
+            onTimeout: (_) {
+              onTimeout?.call();
+            },
+          ).map((event) => []),
+        if (timeout <= Duration.zero)
+          flutterBle.statusStream
+              .firstWhere((element) => element == BleStatus.ready)
+              .asStream()
+              .map((event) => []),
+        if (timeout > Duration.zero)
+          flutterBle.scanForDevices(withServices: []).timeout(
+            timeout,
+            onTimeout: (_) {
+              onTimeout?.call();
+            },
+          ).map(_deviceToResult),
+        if (timeout <= Duration.zero)
+          flutterBle.scanForDevices(withServices: []).map(_deviceToResult),
       ]).doOnCancel(() {
         logger.fine('Stop scanning Bluetooth devices.');
         searching = false;
       });
 
   bool isReady() => flutterBle.status == BleStatus.ready;
+
+  List<BluetoothResult> _deviceToResult(DiscoveredDevice e) {
+    final newResult = BluetoothResult(
+      id: e.id,
+      name: e.name,
+      serviceIds: e.serviceUuids.map((e) => e.toString()).toList(),
+    );
+
+    // ignore: avoid-ignoring-return-values, not needed.
+    _foundDevices.add(newResult);
+    logger.finer('Found device $newResult');
+
+    return _foundDevices.toList();
+  }
 }

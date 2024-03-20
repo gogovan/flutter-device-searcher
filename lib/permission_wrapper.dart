@@ -8,6 +8,8 @@ class PermissionWrapper {
               Permission.bluetoothScan,
             if (defaultTargetPlatform == TargetPlatform.android)
               Permission.bluetoothConnect,
+            if (defaultTargetPlatform == TargetPlatform.android)
+              Permission.locationWhenInUse,
             if (defaultTargetPlatform == TargetPlatform.iOS)
               Permission.bluetooth,
           ].request();
