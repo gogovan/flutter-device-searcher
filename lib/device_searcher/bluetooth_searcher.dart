@@ -48,19 +48,24 @@ class BluetoothSearcher extends DeviceSearcherInterface<BluetoothResult> {
           flutterBle.statusStream
               .firstWhere((element) => element == BleStatus.ready)
               .asStream()
-              .timeout(timeout, onTimeout: (_) {
-            onTimeout?.call();
-          }).map((event) => []),
+              .timeout(
+            timeout,
+            onTimeout: (_) {
+              onTimeout?.call();
+            },
+          ).map((event) => []),
         if (timeout <= Duration.zero)
           flutterBle.statusStream
               .firstWhere((element) => element == BleStatus.ready)
               .asStream()
               .map((event) => []),
         if (timeout > Duration.zero)
-          flutterBle.scanForDevices(withServices: []).timeout(timeout,
-              onTimeout: (_) {
-            onTimeout?.call();
-          }).map(_deviceToResult),
+          flutterBle.scanForDevices(withServices: []).timeout(
+            timeout,
+            onTimeout: (_) {
+              onTimeout?.call();
+            },
+          ).map(_deviceToResult),
         if (timeout <= Duration.zero)
           flutterBle.scanForDevices(withServices: []).map(_deviceToResult),
       ]).doOnCancel(() {
