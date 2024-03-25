@@ -1,9 +1,14 @@
+import 'dart:async';
+
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_device_searcher/search_result/device_search_result.dart';
 
 /// Interface all connectable devices should implement.
 abstract class DeviceInterface {
   DeviceInterface(this.searchResult);
+
+  final StreamController<bool> _connectedController = StreamController();
 
   /// PrinterSearchResult indicating the device this instance is representing.
   @protected
@@ -19,10 +24,8 @@ abstract class DeviceInterface {
   bool isConnected() => _connected;
 
   /// Return a stream that provide the status of the connection continuously.
-  /// Default implementation ping the connect state every few seconds.
-  /// Implementors: If your connection service provides a stream for connection status, use that instead.
-  Stream<bool> connectStateStream() =>
-      Stream.periodic(const Duration(seconds: 5)).map((_) => isConnected());
+  @mustCallSuper
+  Stream<bool> connectStateStream() => _connectedController.stream;
 
   /// Connect to the specified device.
   /// The device should be one of the devices returned by the `search` method from a compatible DeviceSearcherInterface class.
@@ -32,6 +35,7 @@ abstract class DeviceInterface {
     if (!_connected) {
       final result = await connectImpl(searchResult);
       _connected = true;
+      _connectedController.add(true);
 
       return result;
     } else {
@@ -54,6 +58,7 @@ abstract class DeviceInterface {
     if (_connected) {
       final result = await disconnectImpl();
       _connected = false;
+      _connectedController.add(false);
 
       return result;
     } else {
@@ -68,4 +73,10 @@ abstract class DeviceInterface {
   /// This method should be idempotent - multiple invocation of this method should not result in errors or multiple disconnections.
   @protected
   Future<bool> disconnectImpl();
+
+  /// Dispose this device.
+  @mustCallSuper
+  Future<void> dispose() async {
+    await _connectedController.close();
+  }
 }

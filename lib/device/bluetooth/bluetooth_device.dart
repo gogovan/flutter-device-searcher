@@ -21,8 +21,10 @@ class BluetoothDevice extends DeviceInterface {
   StreamSubscription<bool>? connection;
 
   @override
-  Stream<bool> connectStateStream() =>
-      searcher.connectStateStream().map((event) => event && isConnected());
+  Stream<bool> connectStateStream() => CombineLatestStream(
+        [super.connectStateStream(), searcher.connectStateStream()],
+        (values) => values[0] && values[1],
+      );
 
   @override
   bool isConnected() => super.isConnected() && searcher.isReady();
