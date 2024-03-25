@@ -75,6 +75,9 @@ class BluetoothSearcher extends DeviceSearcherInterface<BluetoothResult> {
 
   bool isReady() => flutterBle.status == BleStatus.ready;
 
+  Stream<bool> connectStateStream() =>
+      flutterBle.statusStream.map((event) => event == BleStatus.ready);
+
   List<BluetoothResult> _deviceToResult(DiscoveredDevice e) {
     final newResult = BluetoothResult(
       id: e.id,

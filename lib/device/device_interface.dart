@@ -18,6 +18,12 @@ abstract class DeviceInterface {
   @mustCallSuper
   bool isConnected() => _connected;
 
+  /// Return a stream that provide the status of the connection continuously.
+  /// Default implementation ping the connect state every few seconds.
+  /// Implementors: If your connection service provides a stream for connection status, use that instead.
+  Stream<bool> connectStateStream() =>
+      Stream.periodic(const Duration(seconds: 5)).map((_) => isConnected());
+
   /// Connect to the specified device.
   /// The device should be one of the devices returned by the `search` method from a compatible DeviceSearcherInterface class.
   /// Return true if connection successful or already connected, false otherwise.
