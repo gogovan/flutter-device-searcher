@@ -78,7 +78,9 @@ class BluetoothDevice extends DeviceInterface {
       },
       onError: (event) async {
         await disconnect();
-        completer.completeError(event);
+        if (!completer.isCompleted) {
+          completer.completeError(event);
+        }
       },
     );
 
