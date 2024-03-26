@@ -21,6 +21,12 @@ class BluetoothDevice extends DeviceInterface {
   StreamSubscription<bool>? connection;
 
   @override
+  Stream<bool> connectStateStream() => CombineLatestStream(
+        [super.connectStateStream(), searcher.connectStateStream()],
+        (values) => values[0] && values[1],
+      );
+
+  @override
   bool isConnected() => super.isConnected() && searcher.isReady();
 
   @override
@@ -73,8 +79,11 @@ class BluetoothDevice extends DeviceInterface {
           completer.complete(true);
         }
       },
-      onError: (event) {
-        completer.completeError(event);
+      onError: (event) async {
+        await disconnect();
+        if (!completer.isCompleted) {
+          completer.completeError(event);
+        }
       },
     );
 
@@ -175,5 +184,11 @@ class BluetoothDevice extends DeviceInterface {
 
     return searcher.flutterBle
         .writeCharacteristicWithoutResponse(characteristic, value: value);
+  }
+
+  @override
+  Future<void> dispose() async {
+    await super.dispose();
+    await connection?.cancel();
   }
 }

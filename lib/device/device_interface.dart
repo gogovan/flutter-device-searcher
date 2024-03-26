@@ -1,9 +1,13 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter_device_searcher/search_result/device_search_result.dart';
 
 /// Interface all connectable devices should implement.
 abstract class DeviceInterface {
   DeviceInterface(this.searchResult);
+
+  final StreamController<bool> _connectedController = StreamController();
 
   /// PrinterSearchResult indicating the device this instance is representing.
   @protected
@@ -18,6 +22,10 @@ abstract class DeviceInterface {
   @mustCallSuper
   bool isConnected() => _connected;
 
+  /// Return a stream that provide the status of the connection continuously.
+  @mustCallSuper
+  Stream<bool> connectStateStream() => _connectedController.stream;
+
   /// Connect to the specified device.
   /// The device should be one of the devices returned by the `search` method from a compatible DeviceSearcherInterface class.
   /// Return true if connection successful or already connected, false otherwise.
@@ -26,6 +34,7 @@ abstract class DeviceInterface {
     if (!_connected) {
       final result = await connectImpl(searchResult);
       _connected = true;
+      _connectedController.add(true);
 
       return result;
     } else {
@@ -48,6 +57,7 @@ abstract class DeviceInterface {
     if (_connected) {
       final result = await disconnectImpl();
       _connected = false;
+      _connectedController.add(false);
 
       return result;
     } else {
@@ -62,4 +72,10 @@ abstract class DeviceInterface {
   /// This method should be idempotent - multiple invocation of this method should not result in errors or multiple disconnections.
   @protected
   Future<bool> disconnectImpl();
+
+  /// Dispose this device.
+  @mustCallSuper
+  Future<void> dispose() async {
+    await _connectedController.close();
+  }
 }

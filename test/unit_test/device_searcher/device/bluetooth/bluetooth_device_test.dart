@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter_device_searcher/device/bluetooth/bluetooth_device.dart';
 import 'package:flutter_device_searcher/device/bluetooth/bluetooth_service.dart';
 import 'package:flutter_device_searcher/device_searcher/bluetooth_searcher.dart';
@@ -22,16 +24,16 @@ void main() {
   const btResult =
       BluetoothResult(id: deviceId, name: 'WXL-T12', serviceIds: ['123']);
   final reactiveBle = MockFlutterReactiveBle();
-  final device = BluetoothDevice(searcher, btResult);
 
   setUp(() {
     when(searcher.isSearching()).thenReturn(false);
     when(searcher.flutterBle).thenReturn(reactiveBle);
     when(searcher.logger).thenReturn(Logger('logger'));
-    when(searcher.isReady()).thenReturn(true);
   });
 
   group('connect success / disconnect', () {
+    final device = BluetoothDevice(searcher, btResult);
+
     setUp(() {
       when(reactiveBle.connectToDevice(id: deviceId)).thenAnswer(
         (realInvocation) => Stream.fromIterable([
@@ -47,17 +49,63 @@ void main() {
           ),
         ]),
       );
+
+      when(searcher.isReady()).thenReturn(true);
+      when(searcher.connectStateStream()).thenAnswer((_) => Stream.value(true));
     });
+
+    tearDown(device.dispose);
 
     test('connect/disconnect success', () async {
       expect(await device.connect(), true);
       expect(device.isConnected(), true);
       await device.disconnect();
       expect(device.isConnected(), false);
+      expect(await device.connectStateStream().take(2).toList(), [true, false]);
+    });
+  });
+
+  group('connect / Bluetooth not connected', () {
+    final device = BluetoothDevice(searcher, btResult);
+
+    setUp(() {
+      when(reactiveBle.connectToDevice(id: deviceId)).thenAnswer(
+        (realInvocation) => Stream.fromIterable([
+          const ConnectionStateUpdate(
+            deviceId: deviceId,
+            connectionState: DeviceConnectionState.connecting,
+            failure: null,
+          ),
+          const ConnectionStateUpdate(
+            deviceId: deviceId,
+            connectionState: DeviceConnectionState.connected,
+            failure: null,
+          ),
+        ]),
+      );
+
+      when(searcher.isReady()).thenReturn(false);
+      when(searcher.connectStateStream())
+          .thenAnswer((_) => Stream.value(false));
+    });
+
+    tearDown(device.dispose);
+
+    test('connect/disconnect success', () async {
+      expect(await device.connect(), true);
+      expect(device.isConnected(), false);
+      await device.disconnect();
+      expect(device.isConnected(), false);
+      expect(
+        await device.connectStateStream().take(2).toList(),
+        [false, false],
+      );
     });
   });
 
   group('device connected', () {
+    final device = BluetoothDevice(searcher, btResult);
+
     setUp(() {
       when(reactiveBle.connectToDevice(id: deviceId)).thenAnswer(
         (realInvocation) => Stream.fromIterable([
@@ -71,7 +119,10 @@ void main() {
       when(reactiveBle.statusStream).thenAnswer(
         (realInvocation) => Stream.value(BleStatus.ready),
       );
+      when(searcher.isReady()).thenReturn(true);
     });
+
+    // tearDown(device.dispose);
 
     group('get services', () {
       const serviceId = '12341234-9876-1234-abcd-12345678abcd';
@@ -167,6 +218,23 @@ void main() {
           ),
         ).called(1);
       });
+    });
+  });
+
+  group('device connect error', () {
+    final device = BluetoothDevice(searcher, btResult);
+
+    setUp(() {
+      when(reactiveBle.connectToDevice(id: deviceId)).thenAnswer(
+        (realInvocation) => Stream.error(const HandshakeException('error')),
+      );
+    });
+
+    test('connect error', () async {
+      await expectLater(
+        device.connect,
+        throwsA(isA<HandshakeException>()),
+      );
     });
   });
 }

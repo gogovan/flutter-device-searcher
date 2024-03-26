@@ -62,6 +62,10 @@ void main() {
         ),
       );
     });
+
+    test('connectStateStream', () async {
+      expect(await searcher.connectStateStream().first, true);
+    });
   });
 
   group('ble not ready at first, ready later', () {
@@ -105,6 +109,13 @@ void main() {
             ),
           ],
         ),
+      );
+    });
+
+    test('connectStateStream', () async {
+      expect(
+        await searcher.connectStateStream().toList(),
+        [false, false, true],
       );
     });
   });
