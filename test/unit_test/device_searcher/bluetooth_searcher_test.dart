@@ -113,7 +113,10 @@ void main() {
     });
 
     test('connectStateStream', () async {
-      expect(await searcher.connectStateStream().toList(), [false, false, true]);
+      expect(
+        await searcher.connectStateStream().toList(),
+        [false, false, true],
+      );
     });
   });
 

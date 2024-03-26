@@ -70,7 +70,7 @@ void main() {
 
     setUp(() {
       when(reactiveBle.connectToDevice(id: deviceId)).thenAnswer(
-            (realInvocation) => Stream.fromIterable([
+        (realInvocation) => Stream.fromIterable([
           const ConnectionStateUpdate(
             deviceId: deviceId,
             connectionState: DeviceConnectionState.connecting,
@@ -85,7 +85,8 @@ void main() {
       );
 
       when(searcher.isReady()).thenReturn(false);
-      when(searcher.connectStateStream()).thenAnswer((_) => Stream.value(false));
+      when(searcher.connectStateStream())
+          .thenAnswer((_) => Stream.value(false));
     });
 
     tearDown(device.dispose);
@@ -95,7 +96,10 @@ void main() {
       expect(device.isConnected(), false);
       await device.disconnect();
       expect(device.isConnected(), false);
-      expect(await device.connectStateStream().take(2).toList(), [false, false]);
+      expect(
+        await device.connectStateStream().take(2).toList(),
+        [false, false],
+      );
     });
   });
 
