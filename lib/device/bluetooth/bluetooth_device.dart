@@ -185,4 +185,10 @@ class BluetoothDevice extends DeviceInterface {
     return searcher.flutterBle
         .writeCharacteristicWithoutResponse(characteristic, value: value);
   }
+
+  @override
+  Future<void> dispose() async {
+    await super.dispose();
+    await connection?.cancel();
+  }
 }
