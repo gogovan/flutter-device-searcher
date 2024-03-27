@@ -1,8 +1,8 @@
 import 'dart:async';
 
 import 'package:flutter_device_searcher/device_searcher/device_searcher_interface.dart';
+import 'package:flutter_device_searcher/flutter_device_searcher_platform_interface.dart';
 import 'package:flutter_device_searcher/search_result/usb_result.dart';
-import 'package:quick_usb/quick_usb.dart';
 
 class UsbSearcher extends DeviceSearcherInterface<UsbResult> {
   @override
@@ -10,8 +10,8 @@ class UsbSearcher extends DeviceSearcherInterface<UsbResult> {
     Duration timeout = Duration.zero,
     void Function()? onTimeout,
   }) async* {
-    await QuickUsb.init();
-
+    await FlutterDeviceSearcherPlatform.instance.searchUsb();
+    /*
     var start = DateTime.now();
     while (true) {
       if (timeout > Duration.zero && DateTime.now().difference(start) > timeout) {
@@ -35,7 +35,6 @@ class UsbSearcher extends DeviceSearcherInterface<UsbResult> {
 
       await Future.delayed(const Duration(seconds: 1));
     }
-
-    await QuickUsb.exit();
+    */
   }
 }
