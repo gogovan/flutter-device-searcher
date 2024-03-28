@@ -11,7 +11,7 @@ import 'package:flutter_device_searcher/search_result/device_search_result.dart'
 import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
 import 'package:rxdart/rxdart.dart';
 
-// A Bluetooth LE device.
+/// A Bluetooth LE device.
 class BluetoothDevice extends DeviceInterface {
   BluetoothDevice(this.searcher, super.device);
 
@@ -80,7 +80,6 @@ class BluetoothDevice extends DeviceInterface {
         }
       },
       onError: (event) async {
-        await disconnect();
         if (!completer.isCompleted) {
           completer.completeError(event);
         }
