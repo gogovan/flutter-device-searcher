@@ -192,7 +192,6 @@ Writable w/o response: ${item.isWritableWithoutResponse}
 
     try {
       _searchStream = usbSearcher?.search().listen(cancelOnError: true, (event) {
-        print('ddd $event');
         setState(() {
           searchedResult = event.toList();
         });
