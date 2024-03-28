@@ -1,6 +1,6 @@
 # flutter_device_searcher
 
-A generic library to search for external device using various connection technologies. Support Bluetooth LE.
+A generic library to search for external device using various connection technologies. Support Bluetooth LE and USB (Android only).
 
 ## Getting Started
 
@@ -47,6 +47,22 @@ defaultConfig {
 
 1. Include usage description keys for Bluetooth into `info.plist`.
    ![iOS XCode Bluetooth permission instruction](README_img/ios-bluetooth-perm.png)
+
+## USB
+### Android
+
+1. Add the following to your main `AndroidManifest.xml`.
+
+```xml
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.example.flutter_label_printer_example">
+
+    <uses-feature android:name="android.hardware.usb.host" android:required="true" />
+    
+    <uses-permission android:name="hk.gogovan.flutter_label_printer.USB_PERMISSION" />
+    <!-- ... -->
+</manifest>
+```
 
 # Usage
 

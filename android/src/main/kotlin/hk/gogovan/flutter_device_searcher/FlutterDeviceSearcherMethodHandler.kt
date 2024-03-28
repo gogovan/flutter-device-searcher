@@ -17,22 +17,7 @@ class FlutterDeviceSearcherMethodHandler(
     private val context: Context,
     private val usbSearcher: UsbSearcher?,
 ) : MethodChannel.MethodCallHandler {
-    companion object {
-        const val SHARED_PREF_NAME = "hk.gogovan.flutter_device_searcher"
-        const val SHARED_PREF_PAPER_TYPE = "paper_type"
-    }
-
-    private var currentPaperType: Int? = null
-
-    private var paperTypeSet = false
-    private var areaSizeSet = false
-
     override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) {
-        if (currentPaperType == null) {
-            val pref = context.getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE)
-            currentPaperType = pref.getInt(SHARED_PREF_PAPER_TYPE, 0)
-        }
-
         try {
             when (call.method) {
                 "hk.gogovan.device_searcher.searchUsb" -> {
