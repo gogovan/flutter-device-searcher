@@ -73,12 +73,7 @@ class UsbSearcher(private val context: Context) {
         return result
     }
 
-    fun getUsbDevice(name: String): UsbDevice? {
-        val manager = context.getSystemService(UsbManager::class.java)
-        return manager.deviceList[name]
-    }
-
-    fun checkPermission(device: UsbDevice, onPerm: (Boolean, UsbDevice?) -> Unit): Boolean {
+    private fun checkPermission(device: UsbDevice, onPerm: (Boolean, UsbDevice?) -> Unit): Boolean {
         val manager = context.getSystemService(UsbManager::class.java)
 
         return if (manager.hasPermission(device)) {
