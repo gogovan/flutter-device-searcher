@@ -1,6 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="hk.gogovan.flutter_label_printer">
+    package="hk.gogovan.flutter_device_searcher">
 
     <uses-feature
         android:name="android.hardware.bluetooth"
@@ -24,5 +24,5 @@
     <uses-permission
         android:name="android.permission.ACCESS_FINE_LOCATION"
         android:maxSdkVersion="30" />
-    <uses-permission android:name="hk.gogovan.flutter_label_printer.USB_PERMISSION" />
+    <uses-permission android:name="hk.gogovan.flutter_device_searcher.USB_PERMISSION" />
 </manifest>

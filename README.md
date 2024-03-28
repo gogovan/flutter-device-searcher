@@ -26,7 +26,7 @@ defaultConfig {
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="com.example.flutter_label_printer_example">
+    package="com.example.flutter_device_searcher_example">
 
     <uses-feature android:name="android.hardware.bluetooth" android:required="true" />
 
@@ -55,11 +55,11 @@ defaultConfig {
 
 ```xml
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.flutter_label_printer_example">
+    package="com.example.flutter_device_searcher_example">
 
     <uses-feature android:name="android.hardware.usb.host" android:required="true" />
     
-    <uses-permission android:name="hk.gogovan.flutter_label_printer.USB_PERMISSION" />
+    <uses-permission android:name="hk.gogovan.flutter_device_searcher.USB_PERMISSION" />
     <!-- ... -->
 </manifest>
 ```

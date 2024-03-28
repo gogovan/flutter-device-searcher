@@ -14,7 +14,7 @@ import android.os.Build
 
 class UsbSearcher(private val context: Context) {
     companion object {
-        private const val ACTION_USB_PERMISSION = "hk.gogovan.flutter_label_printer.USB_PERMISSION"
+        private const val ACTION_USB_PERMISSION = "hk.gogovan.flutter_device_searcher.USB_PERMISSION"
     }
 
     private val usbReceiver = object : BroadcastReceiver() {
