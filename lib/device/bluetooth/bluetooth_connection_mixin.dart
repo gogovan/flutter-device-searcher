@@ -41,7 +41,7 @@ mixin BluetoothConnectionMixin {
     required void Function() onConnected,
     void Function()? onTimeout,
   }) async {
-    final stream = _btSearcher
+    final stream = btSearcher
         .search(timeout: timeout, onTimeout: onTimeout)
         .map(
           (event) => event.where(includeResult),
@@ -50,7 +50,7 @@ mixin BluetoothConnectionMixin {
 
     _searchedDevices = stream.listen(cancelOnError: true, (event) async {
       await _searchedDevices?.cancel();
-      final newDevice = createBluetoothDevice(_btSearcher, event.first);
+      final newDevice = createBluetoothDevice(btSearcher, event.first);
       if (await newDevice.connect()) {
         // 1 second delay added because otherwise getServices would fail with device already connected error. (Not sure why).
         // ignore: avoid-ignoring-return-values, not needed.
