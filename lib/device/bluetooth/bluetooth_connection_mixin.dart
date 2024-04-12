@@ -8,7 +8,7 @@ import 'package:flutter_device_searcher/search_result/bluetooth_result.dart';
 import 'package:meta/meta.dart';
 
 mixin BluetoothConnectionMixin {
-  BluetoothSearcher get _btSearcher;
+  BluetoothSearcher get btSearcher;
   StreamSubscription<Iterable<BluetoothResult>>? _searchedDevices;
 
   /// current bluetooth device. null if no device is connected or already been disconnected.
