@@ -97,3 +97,10 @@ final searchStream = btSearcher?.search().listen(cancelOnError: true, (event) {
 ```dart
   await btDevice.disconnect();
 ```
+
+## BluetoothConnectionMixin
+
+If you are using Bluetooth, you can also elect to use the provided `BluetoothConnectionMixin`, which handles device searching and connection management.
+
+Override the methods `includeResult`, `includeService` and `includeCharacteristic` methods to specify which Bluetooth device, service and characteristic you are interested in. It should filter results, services and characteristics down to one of each.
+
