@@ -1,5 +1,6 @@
 package hk.gogovan.flutter_device_searcher
 
+import android.util.Log
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.PendingIntent
@@ -48,27 +49,29 @@ class UsbSearcher(private val context: Context) {
 
     suspend fun getUsbDevices(): List<UsbDevice> {
         val result = mutableListOf<UsbDevice>()
-        var permissionPendingChecks = 0
+        var permissionPendingChecks = false
 
         val manager = context.getSystemService(UsbManager::class.java)
         for (device in manager.deviceList.values) {
+            Log.d("ddd", "interface: ${device.interfaceCount} ${device}")
             for (i in 0 until device.interfaceCount) {
                 val intf = device.getInterface(i)
-                if (intf.interfaceClass == UsbConstants.USB_CLASS_PRINTER) {
-                    permissionPendingChecks += 1
-                    checkPermission(device) { granted, inDevice ->
-                        if (inDevice != null && granted) {
-                            result.add(inDevice)
-                        }
-                        permissionPendingChecks -= 1
+                permissionPendingChecks = true
+                checkPermission(device) { granted, inDevice ->
+                    Log.d("ddd", "granted: ${granted} ${inDevice}")
+                    if (inDevice != null && granted) {
+                        result.add(inDevice)
                     }
+                    permissionPendingChecks = false
                 }
+            }
+
+            while (permissionPendingChecks) {
+                kotlinx.coroutines.delay(100)
             }
         }
 
-        while (permissionPendingChecks > 0) {
-            kotlinx.coroutines.delay(100)
-        }
+        Log.d("ddd", "result: ${result}")
 
         return result
     }
@@ -83,6 +86,7 @@ class UsbSearcher(private val context: Context) {
             onPermission = {
                 onPerm(manager.hasPermission(device), device)
             }
+            Log.d("ddd", "request permission: ${device}")
             manager.requestPermission(device, permissionIntent)
             false
         }
