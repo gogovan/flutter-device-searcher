@@ -29,13 +29,7 @@ class BluetoothDevice extends DeviceInterface<BluetoothResult> {
   bool isConnected() => super.isConnected() && searcher.isReady();
 
   @override
-  Future<bool> connectImpl(DeviceSearchResult inSearchResult) {
-    if (inSearchResult is! BluetoothResult) {
-      throw InvalidDeviceResultError(
-        'Expected BluetoothResult. Received ${inSearchResult.runtimeType}',
-      );
-    }
-
+  Future<bool> connectImpl(BluetoothResult inSearchResult) {
     if (searcher.isSearching()) {
       // Some phones may misbehave when trying to connect a bluetooth device while scanning.
       // Ref https://github.com/dariuszseweryn/RxAndroidBle/wiki/FAQ:-Cannot-connect#connect-while-scanning.

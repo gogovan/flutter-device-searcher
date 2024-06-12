@@ -49,7 +49,7 @@ abstract class DeviceInterface<T extends DeviceSearchResult> {
   /// Implementors should connect to the specified device, and the device should be ready to use when this method returns normally.
   /// This method should be idempotent - multiple invocation of this method should not result in errors or multiple connections.
   @protected
-  Future<bool> connectImpl(DeviceSearchResult inSearchResult);
+  Future<bool> connectImpl(T inSearchResult);
 
   /// Disconnect to the currently connected device.
   /// Return true if disconnection successful or already disconnected, false otherwise.
