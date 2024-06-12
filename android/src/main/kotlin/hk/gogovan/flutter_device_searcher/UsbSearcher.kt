@@ -53,15 +53,12 @@ class UsbSearcher(private val context: Context) {
 
         val manager = context.getSystemService(UsbManager::class.java)
         for (device in manager.deviceList.values) {
-            for (i in 0 until device.interfaceCount) {
-                val intf = device.getInterface(i)
-                permissionPendingChecks = true
-                checkPermission(device) { granted, inDevice ->
-                    if (inDevice != null && granted) {
-                        result.add(inDevice)
-                    }
-                    permissionPendingChecks = false
+            permissionPendingChecks = true
+            checkPermission(device) { granted, inDevice ->
+                if (inDevice != null && granted) {
+                    result.add(inDevice)
                 }
+                permissionPendingChecks = false
             }
 
             while (permissionPendingChecks) {

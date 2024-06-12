@@ -4,6 +4,7 @@ import 'dart:async';
 import 'package:logging/logging.dart';
 import 'package:flutter_device_searcher/device/bluetooth/bluetooth_device.dart';
 import 'package:flutter_device_searcher/device/bluetooth/bluetooth_service.dart';
+import 'package:flutter_device_searcher/device/usb/usb_device.dart';
 import 'package:flutter_device_searcher/device_searcher/bluetooth_searcher.dart';
 import 'package:flutter_device_searcher/device_searcher/usb_searcher.dart';
 import 'package:flutter_device_searcher/search_result/bluetooth_result.dart';
@@ -235,7 +236,10 @@ Writable w/o response: ${item.isWritableWithoutResponse}
         connectedResult = 'Connecting to device $index';
       });
 
-      btDevice = BluetoothDevice(btSearcher!, searchedResult[index]);
+      btDevice = BluetoothDevice(
+        btSearcher!,
+        searchedResult[index] as BluetoothResult,
+      );
       await btDevice?.connect();
 
       setState(() {
@@ -254,7 +258,7 @@ Writable w/o response: ${item.isWritableWithoutResponse}
         connectedResult = 'Connecting to device $index';
       });
 
-      usbDevice = UsbDevice(btSearcher!, searchedResult[index]);
+      usbDevice = UsbDevice(searchedResult[index] as UsbResult);
       await usbDevice?.connect();
 
       setState(() {
