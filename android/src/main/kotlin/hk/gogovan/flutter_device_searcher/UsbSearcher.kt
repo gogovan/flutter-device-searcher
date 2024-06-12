@@ -53,12 +53,10 @@ class UsbSearcher(private val context: Context) {
 
         val manager = context.getSystemService(UsbManager::class.java)
         for (device in manager.deviceList.values) {
-            Log.d("ddd", "interface: ${device.interfaceCount} ${device}")
             for (i in 0 until device.interfaceCount) {
                 val intf = device.getInterface(i)
                 permissionPendingChecks = true
                 checkPermission(device) { granted, inDevice ->
-                    Log.d("ddd", "granted: ${granted} ${inDevice}")
                     if (inDevice != null && granted) {
                         result.add(inDevice)
                     }
@@ -70,8 +68,6 @@ class UsbSearcher(private val context: Context) {
                 kotlinx.coroutines.delay(100)
             }
         }
-
-        Log.d("ddd", "result: ${result}")
 
         return result
     }
@@ -86,7 +82,6 @@ class UsbSearcher(private val context: Context) {
             onPermission = {
                 onPerm(manager.hasPermission(device), device)
             }
-            Log.d("ddd", "request permission: ${device}")
             manager.requestPermission(device, permissionIntent)
             false
         }

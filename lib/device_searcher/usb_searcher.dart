@@ -20,7 +20,6 @@ class UsbSearcher extends DeviceSearcherInterface<UsbResult> {
       }
       final devicesJson =
           await FlutterDeviceSearcherPlatform.instance.searchUsb();
-      print('ddd $devicesJson');
       final devicesObj = jsonDecode(devicesJson) as List<dynamic>;
       final result = devicesObj
           .map(

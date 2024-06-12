@@ -8,6 +8,7 @@ import 'package:flutter_device_searcher/device_searcher/bluetooth_searcher.dart'
 import 'package:flutter_device_searcher/device_searcher/usb_searcher.dart';
 import 'package:flutter_device_searcher/search_result/bluetooth_result.dart';
 import 'package:flutter_device_searcher/search_result/device_search_result.dart';
+import 'package:flutter_device_searcher/search_result/usb_result.dart';
 import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
 
 void main() {
@@ -26,6 +27,7 @@ class _MyAppState extends State<MyApp> {
 
   final writeController = TextEditingController();
   BluetoothDevice? btDevice;
+  UsbDevice? usbDevice;
 
   bool _searching = false;
   var searchedResult = <DeviceSearchResult>[];
@@ -72,11 +74,9 @@ class _MyAppState extends State<MyApp> {
                   onPressed: _searchBluetooth,
                   child: const Text('Search for Bluetooth')),
               ElevatedButton(
-                  onPressed: _searchUsb,
-                  child: const Text('Search for USB')),
+                  onPressed: _searchUsb, child: const Text('Search for USB')),
               ElevatedButton(
-                  onPressed: _stopSearch,
-                  child: const Text('Stop Searching')),
+                  onPressed: _stopSearch, child: const Text('Stop Searching')),
               Text('Searching = $_searching'),
               ...searchedResult
                   .toList()
@@ -87,7 +87,7 @@ class _MyAppState extends State<MyApp> {
                           children: [
                             Expanded(child: Text(item.value.toString())),
                             ElevatedButton(
-                                onPressed: () => _connectBluetooth(item.key),
+                                onPressed: () => _connect(item.key),
                                 child: const Text('Connect')),
                           ],
                         ),
@@ -98,7 +98,8 @@ class _MyAppState extends State<MyApp> {
                   child: const Text('Disconnect Bluetooth')),
               Text(connectedResult),
               ElevatedButton(
-                  onPressed: _getServices, child: const Text('Get Services')),
+                  onPressed: _getServices,
+                  child: const Text('Get Bluetooth Services')),
               ...serviceList
                   .expand((element) => element.characteristics)
                   .toList()
@@ -173,9 +174,8 @@ Writable w/o response: ${item.isWritableWithoutResponse}
     try {
       _searchStream = btSearcher?.search().listen(cancelOnError: true, (event) {
         setState(() {
-          searchedResult = event
-              .where((e) => e.name?.isNotEmpty == true)
-              .toList();
+          searchedResult =
+              event.where((e) => e.name?.isNotEmpty == true).toList();
         });
       });
     } catch (ex) {
@@ -191,7 +191,8 @@ Writable w/o response: ${item.isWritableWithoutResponse}
     });
 
     try {
-      _searchStream = usbSearcher?.search().listen(cancelOnError: true, (event) {
+      _searchStream =
+          usbSearcher?.search().listen(cancelOnError: true, (event) {
         setState(() {
           searchedResult = event.toList();
         });
@@ -216,6 +217,18 @@ Writable w/o response: ${item.isWritableWithoutResponse}
     });
   }
 
+  Future<void> _connect(int index) async {
+    if (searchedResult[index] is BluetoothResult) {
+      await _connectBluetooth(index);
+    } else if (searchedResult[index] is UsbResult) {
+      await _connectUsb(index);
+    } else {
+      setState(() {
+        connectedResult = 'Unknown device at index $index';
+      });
+    }
+  }
+
   Future<void> _connectBluetooth(int index) async {
     try {
       setState(() {
@@ -235,9 +248,42 @@ Writable w/o response: ${item.isWritableWithoutResponse}
     }
   }
 
+  Future<void> _connectUsb(int index) async {
+    try {
+      setState(() {
+        connectedResult = 'Connecting to device $index';
+      });
+
+      usbDevice = UsbDevice(btSearcher!, searchedResult[index]);
+      await usbDevice?.connect();
+
+      setState(() {
+        connectedResult = 'Connected to device $index';
+      });
+    } catch (ex) {
+      setState(() {
+        connectedResult = ex.toString();
+      });
+    }
+  }
+
   Future<void> _disconnectBluetooth() async {
     try {
       await btDevice!.disconnect();
+
+      setState(() {
+        connectedResult = "Disconnected from device";
+      });
+    } catch (ex) {
+      setState(() {
+        connectedResult = ex.toString();
+      });
+    }
+  }
+
+  Future<void> _disconnectUsb() async {
+    try {
+      await usbDevice!.disconnect();
 
       setState(() {
         connectedResult = "Disconnected from device";
@@ -276,8 +322,8 @@ Writable w/o response: ${item.isWritableWithoutResponse}
 
   Future<void> _read() async {
     try {
-      final result =
-          await btDevice!.read(selectedServiceUuid.toString(), selectedCharacteristicUuid.toString());
+      final result = await btDevice!.read(selectedServiceUuid.toString(),
+          selectedCharacteristicUuid.toString());
       print('_read: ${result.toString()}');
       setState(() {
         readResult = String.fromCharCodes(result);
@@ -293,7 +339,8 @@ Writable w/o response: ${item.isWritableWithoutResponse}
     try {
       readStreamSubscription?.cancel();
       readStreamSubscription = btDevice!
-          .readAsStream(selectedServiceUuid.toString(), selectedCharacteristicUuid.toString())
+          .readAsStream(selectedServiceUuid.toString(),
+              selectedCharacteristicUuid.toString())
           .listen((event) {
         print('_readStream ${event.toString()}');
         setState(() {
