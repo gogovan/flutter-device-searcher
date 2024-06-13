@@ -97,10 +97,12 @@ class UsbSearcher(private val context: Context) {
         val endpoint = device.getInterface(0).getEndpoint(0)
 
         currentConnection = manager.openDevice(device)
+        // manager.claimInterface(device.getInterface(0), true)
     }
 
     suspend fun disconnectDevice() {
         currentConnection?.close()
         currentConnection = null
     }
+    
 }
