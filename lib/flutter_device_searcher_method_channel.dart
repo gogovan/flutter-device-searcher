@@ -24,4 +24,14 @@ class MethodChannelFlutterDeviceSearcher extends FlutterDeviceSearcherPlatform {
 
     return result ?? '';
   }
+
+  @override
+  Future<bool> connect(String deviceName) async {
+    final result = await methodChannel.invokeMethod<bool>(
+      'hk.gogovan.device_searcher.connectUsb',
+      <String, dynamic>{'deviceName': deviceName},
+    );
+
+    return result ?? false;
+  }
 }

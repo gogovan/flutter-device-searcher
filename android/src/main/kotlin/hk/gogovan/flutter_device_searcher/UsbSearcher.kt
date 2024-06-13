@@ -10,6 +10,7 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.hardware.usb.UsbConstants
 import android.hardware.usb.UsbDevice
+import android.hardware.usb.UsbDeviceConnection
 import android.hardware.usb.UsbManager
 import android.os.Build
 
@@ -28,6 +29,8 @@ class UsbSearcher(private val context: Context) {
 
     private var currentActivity: Activity? = null
     private var permissionIntent: PendingIntent? = null
+
+    private var currentConnection: UsbDeviceConnection? = null
 
     private var onPermission: () -> Unit = { }
 
@@ -84,4 +87,15 @@ class UsbSearcher(private val context: Context) {
         }
     }
 
+    suspend fun connectDevice(device: UsbDevice) {
+        if (currentConnection != null) {
+            currentConnection?.close()
+            currentConnection = null
+        }
+
+        val manager = context.getSystemService(UsbManager::class.java)
+        val endpoint = device.getInterface(0).getEndpoint(0)
+
+        currentConnection = manager.openDevice(device)
+    }
 }

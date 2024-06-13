@@ -29,4 +29,8 @@ abstract class FlutterDeviceSearcherPlatform extends PlatformInterface {
   Future<String> searchUsb() {
     throw UnimplementedError('searchUsb() has not been implemented.');
   }
+
+  Future<bool> connect(String deviceName) {
+    throw UnimplementedError('connect() has not been implemented.');
+  }
 }

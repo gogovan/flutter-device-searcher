@@ -39,6 +39,22 @@ class FlutterDeviceSearcherMethodHandler(
                         result.success(Json.encodeToString(obj))
                     }
                 }
+                "hk.gogovan.device_searcher.connectUsb" -> {
+                    CoroutineScope(Dispatchers.IO).launch {
+                        val deviceName = call.argument<String>("deviceName");
+                        if (deviceName == null) {
+                            result.error("1001", "deviceName is required", null)
+                        } else {
+                            val device = usbSearcher?.getUsbDevices()?.find { it.deviceName == deviceName }
+                            if (device == null) {
+                                result.error("1002", "device not found", null)
+                            } else {
+                                usbSearcher?.connectDevice(device)
+                                result.success(true)
+                            }
+                        }
+                    }
+                }
             }
         }  catch (e: PluginException) {
             result.error(e.code.toString(), e.message, e.stackTraceToString())
