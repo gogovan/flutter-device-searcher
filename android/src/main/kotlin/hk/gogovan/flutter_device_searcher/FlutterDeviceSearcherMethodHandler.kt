@@ -23,19 +23,42 @@ class FlutterDeviceSearcherMethodHandler(
                 "hk.gogovan.device_searcher.searchUsb" -> {
                     CoroutineScope(Dispatchers.IO).launch {
                         val map = usbSearcher?.getUsbDevices()
-                        val obj = map?.map {
+                        val obj = map?.map { device ->
+                            val interfaces = mutableListOf<Map<String, String>>()
+                            for (i in 0..(device.getInterfaceCount()-1)) {
+                                val endpoints = mutableListOf<Map<String, String>>()
+
+                                for (j in 0..(device.getInterface(i).getEndpointCount()-1)) {
+                                    val endpoint = device.getInterface(i).getEndpoint(j)
+                                    endpoints.add(mapOf(
+                                        "endpointNumber" to endpoint.endpointNumber.toString(),
+                                        "direction" to endpoint.direction.toString(),
+                                        "type" to endpoint.type.toString(),
+                                        "maxPacketSize" to endpoint.maxPacketSize.toString(),
+                                        "interval" to endpoint.interval.toString()
+                                    ))
+                                }
+
+                                interfaces.add(mapOf(
+                                    "interfaceClass" to device.getInterface(i).interfaceClass.toString(),
+                                    "interfaceSubclass" to device.getInterface(i).interfaceSubclass.toString(),
+                                    "interfaceProtocol" to device.getInterface(i).interfaceProtocol.toString(),
+                                    "endpoints" to Json.encodeToString(endpoints),
+                                ))
+                            }
+
                             mapOf(
-                                "deviceName" to it.deviceName,
-                                "vendorId" to it.vendorId.toString(),
-                                "productId" to it.productId.toString(),
-                                "serialNumber" to (it.serialNumber ?: ""),
-                                "deviceClass" to it.deviceClass.toString(),
-                                "deviceSubclass" to it.deviceSubclass.toString(),
-                                "deviceProtocol" to it.deviceProtocol.toString(),
-                                "interfaceClass" to it.getInterface(0).interfaceClass.toString(),
-                                "interfaceSubclass" to it.getInterface(0).interfaceSubclass.toString(),
+                                "deviceName" to device.deviceName,
+                                "vendorId" to device.vendorId.toString(),
+                                "productId" to device.productId.toString(),
+                                "serialNumber" to (device.serialNumber ?: ""),
+                                "deviceClass" to device.deviceClass.toString(),
+                                "deviceSubclass" to device.deviceSubclass.toString(),
+                                "deviceProtocol" to device.deviceProtocol.toString(),
+                                "interfaces" to Json.encodeToString(interfaces)
                             )
                         }
+
                         result.success(Json.encodeToString(obj))
                     }
                 }

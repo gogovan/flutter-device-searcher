@@ -21,6 +21,7 @@ class UsbSearcher extends DeviceSearcherInterface<UsbResult> {
       final devicesJson =
           await FlutterDeviceSearcherPlatform.instance.searchUsb();
       final devicesObj = jsonDecode(devicesJson) as List<dynamic>;
+      print('ddd received $devicesObj');
       final result = devicesObj
           .map(
             (e) => UsbResult(
@@ -31,11 +32,35 @@ class UsbSearcher extends DeviceSearcherInterface<UsbResult> {
               deviceClass: e['deviceClass'] as String?,
               deviceSubclass: e['deviceSubclass'] as String?,
               deviceProtocol: e['deviceProtocol'] as String?,
-              interfaceClass: e['interfaceClass'] as String?,
-              interfaceSubclass: e['interfaceSubclass'] as String?,
+              interfaces: (jsonDecode(e['interfaces']) as List<dynamic>?)
+                  ?.map(
+                    (e) => UsbInterfaceResult(
+                      interfaceClass: e['interfaceClass'] as String?,
+                      interfaceSubclass: e['interfaceSubclass'] as String?,
+                      interfaceProtocol: e['interfaceProtocol'] as String?,
+                      endpoints: (jsonDecode(e['endpoints']) as List<dynamic>?)
+                          ?.map(
+                            (e) => UsbEndpointResult(
+                              endpointNumber: int.tryParse(
+                                e['endpointNumber'] as String? ?? '',
+                              ),
+                              direction: e['direction'] as String?,
+                              type: e['type'] as String?,
+                              maxPacketSize: int.tryParse(
+                                e['maxPacketSize'] as String? ?? '',
+                              ),
+                              interval:
+                                  int.tryParse(e['interval'] as String? ?? ''),
+                            ),
+                          )
+                          .toList(),
+                    ),
+                  )
+                  .toList(),
             ),
           )
           .toList();
+      print('ddd result $result');
 
       if (result.isNotEmpty) {
         start = DateTime.now();
