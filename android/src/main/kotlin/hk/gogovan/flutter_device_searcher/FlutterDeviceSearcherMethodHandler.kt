@@ -55,6 +55,15 @@ class FlutterDeviceSearcherMethodHandler(
                         }
                     }
                 }
+                "hk.gogovan.device_searcher.disconnectUsb" -> {
+                    CoroutineScope(Dispatchers.IO).launch {
+                        usbSearcher?.disconnectDevice()
+                        result.success(true)
+                    }
+                }
+                else -> {
+                    result.notImplemented()
+                }
             }
         }  catch (e: PluginException) {
             result.error(e.code.toString(), e.message, e.stackTraceToString())

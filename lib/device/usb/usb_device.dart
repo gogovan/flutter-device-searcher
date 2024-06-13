@@ -10,8 +10,6 @@ class UsbDevice extends DeviceInterface<UsbResult> {
       FlutterDeviceSearcherPlatform.instance.connect(inSearchResult.deviceName);
 
   @override
-  Future<bool> disconnectImpl() {
-    // TODO: implement disconnectImpl
-    throw UnimplementedError();
-  }
+  Future<bool> disconnectImpl() =>
+      FlutterDeviceSearcherPlatform.instance.disconnect();
 }

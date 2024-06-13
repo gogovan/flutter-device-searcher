@@ -34,4 +34,12 @@ class MethodChannelFlutterDeviceSearcher extends FlutterDeviceSearcherPlatform {
 
     return result ?? false;
   }
+
+  @override
+  Future<bool> disconnect() async {
+    final result = await methodChannel
+        .invokeMethod<bool>('hk.gogovan.device_searcher.disconnectUsb');
+
+    return result ?? false;
+  }
 }

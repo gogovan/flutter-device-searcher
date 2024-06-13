@@ -95,8 +95,7 @@ class _MyAppState extends State<MyApp> {
                         Container(color: Colors.blue, height: 1)
                       ])),
               ElevatedButton(
-                  onPressed: _disconnectBluetooth,
-                  child: const Text('Disconnect Bluetooth')),
+                  onPressed: _disconnect, child: const Text('Disconnect')),
               Text(connectedResult),
               ElevatedButton(
                   onPressed: _getServices,
@@ -271,23 +270,10 @@ Writable w/o response: ${item.isWritableWithoutResponse}
     }
   }
 
-  Future<void> _disconnectBluetooth() async {
+  Future<void> _disconnect() async {
     try {
-      await btDevice!.disconnect();
-
-      setState(() {
-        connectedResult = "Disconnected from device";
-      });
-    } catch (ex) {
-      setState(() {
-        connectedResult = ex.toString();
-      });
-    }
-  }
-
-  Future<void> _disconnectUsb() async {
-    try {
-      await usbDevice!.disconnect();
+      await btDevice?.disconnect();
+      await usbDevice?.disconnect();
 
       setState(() {
         connectedResult = "Disconnected from device";

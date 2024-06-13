@@ -98,4 +98,9 @@ class UsbSearcher(private val context: Context) {
 
         currentConnection = manager.openDevice(device)
     }
+
+    suspend fun disconnectDevice() {
+        currentConnection?.close()
+        currentConnection = null
+    }
 }
