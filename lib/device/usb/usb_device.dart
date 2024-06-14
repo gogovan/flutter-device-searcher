@@ -12,4 +12,7 @@ class UsbDevice extends DeviceInterface<UsbResult> {
   @override
   Future<bool> disconnectImpl() =>
       FlutterDeviceSearcherPlatform.instance.disconnect();
+
+  Future<bool> setInterfaceIndex(int interfaceIndex) =>
+      FlutterDeviceSearcherPlatform.instance.setInterfaceIndex(interfaceIndex);
 }

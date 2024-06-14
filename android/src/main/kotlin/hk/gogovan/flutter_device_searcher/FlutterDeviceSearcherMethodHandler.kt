@@ -78,6 +78,17 @@ class FlutterDeviceSearcherMethodHandler(
                         }
                     }
                 }
+                "hk.gogovan.device_searcher.setInterfaceIndex" -> {
+                    CoroutineScope(Dispatchers.IO).launch {
+                        val index = call.argument<Int>("interfaceIndex");
+                        if (index == null) {
+                            result.error("1001", "index is required", null)
+                        } else {
+                            usbSearcher?.setInterfaceIndex(index)
+                            result.success(true)
+                        }
+                    }
+                }
                 "hk.gogovan.device_searcher.disconnectUsb" -> {
                     CoroutineScope(Dispatchers.IO).launch {
                         usbSearcher?.disconnectDevice()

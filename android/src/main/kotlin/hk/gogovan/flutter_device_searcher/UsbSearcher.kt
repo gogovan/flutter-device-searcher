@@ -31,6 +31,7 @@ class UsbSearcher(private val context: Context) {
     private var permissionIntent: PendingIntent? = null
 
     private var currentConnection: UsbDeviceConnection? = null
+    private var currentDevice: UsbDevice? = null
 
     private var onPermission: () -> Unit = { }
 
@@ -94,10 +95,13 @@ class UsbSearcher(private val context: Context) {
         }
 
         val manager = context.getSystemService(UsbManager::class.java)
-        val endpoint = device.getInterface(0).getEndpoint(0)
 
+        currentDevice = device;
         currentConnection = manager.openDevice(device)
-        // manager.claimInterface(device.getInterface(0), true)
+    }
+
+    suspend fun setInterfaceIndex(index: Int) {
+        currentConnection?.claimInterface(currentDevice?.getInterface(index), true)
     }
 
     suspend fun disconnectDevice() {

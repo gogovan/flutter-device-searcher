@@ -21,7 +21,6 @@ class UsbSearcher extends DeviceSearcherInterface<UsbResult> {
       final devicesJson =
           await FlutterDeviceSearcherPlatform.instance.searchUsb();
       final devicesObj = jsonDecode(devicesJson) as List<dynamic>;
-      print('ddd received $devicesObj');
       final result = devicesObj
           .map(
             (e) => UsbResult(
@@ -60,7 +59,6 @@ class UsbSearcher extends DeviceSearcherInterface<UsbResult> {
             ),
           )
           .toList();
-      print('ddd result $result');
 
       if (result.isNotEmpty) {
         start = DateTime.now();

@@ -36,6 +36,16 @@ class MethodChannelFlutterDeviceSearcher extends FlutterDeviceSearcherPlatform {
   }
 
   @override
+  Future<bool> setInterfaceIndex(int interfaceIndex) async {
+    final result = await methodChannel.invokeMethod<bool>(
+      'hk.gogovan.device_searcher.setInterfaceIndex',
+      <String, dynamic>{'interfaceIndex': interfaceIndex},
+    );
+
+    return result ?? false;
+  }
+
+  @override
   Future<bool> disconnect() async {
     final result = await methodChannel
         .invokeMethod<bool>('hk.gogovan.device_searcher.disconnectUsb');

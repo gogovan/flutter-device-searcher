@@ -30,6 +30,8 @@ class _MyAppState extends State<MyApp> {
   BluetoothDevice? btDevice;
   UsbDevice? usbDevice;
 
+  final indexController = TextEditingController();
+
   bool _searching = false;
   var searchedResult = <DeviceSearchResult>[];
   String connectedResult = 'Pending connection...';
@@ -97,6 +99,22 @@ class _MyAppState extends State<MyApp> {
               ElevatedButton(
                   onPressed: _disconnect, child: const Text('Disconnect')),
               Text(connectedResult),
+              Row(children: [
+                SizedBox(
+                  width: 200,
+                  child: TextField(
+                    decoration: const InputDecoration(
+                      hintText: 'Interface Index',
+                    ),
+                    controller: indexController,
+                    keyboardType: TextInputType.number,
+                  ),
+                ),
+                ElevatedButton(
+                  onPressed: _setInterfaceIndex,
+                  child: const Text('Set Interface Index'),
+                )
+              ]),
               ElevatedButton(
                   onPressed: _getServices,
                   child: const Text('Get Bluetooth Services')),
@@ -196,6 +214,20 @@ Writable w/o response: ${item.isWritableWithoutResponse}
         setState(() {
           searchedResult = event.toList();
         });
+      });
+    } catch (ex) {
+      setState(() {
+        connectedResult = ex.toString();
+      });
+    }
+  }
+
+  Future<void> _setInterfaceIndex() async {
+    try {
+      final index = int.parse(indexController.text);
+      await usbDevice?.setInterfaceIndex(index);
+      setState(() {
+        connectedResult = 'Set interface $index';
       });
     } catch (ex) {
       setState(() {
