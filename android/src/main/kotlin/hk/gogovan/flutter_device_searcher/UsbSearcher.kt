@@ -32,6 +32,8 @@ class UsbSearcher(private val context: Context) {
 
     private var currentConnection: UsbDeviceConnection? = null
     private var currentDevice: UsbDevice? = null
+    private var currentInterface: Int = 0
+    private var currentEndpoint: Int = 0
 
     private var onPermission: () -> Unit = { }
 
@@ -101,7 +103,15 @@ class UsbSearcher(private val context: Context) {
     }
 
     suspend fun setInterfaceIndex(index: Int) {
-        currentConnection?.claimInterface(currentDevice?.getInterface(index), true)
+        currentConnection?.claimInterface(currentDevice?.getInterface(index), true)?.let {
+            currentInterface = index
+        }
+    }
+
+    suspend fun setEndpointIndex(index: Int) {
+        currentDevice?.getInterface(currentInterface)?.getEndpoint(index)?.let {
+            currentEndpoint = index
+        }
     }
 
     suspend fun disconnectDevice() {

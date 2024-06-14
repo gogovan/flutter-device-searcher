@@ -96,9 +96,6 @@ class _MyAppState extends State<MyApp> {
                         ),
                         Container(color: Colors.blue, height: 1)
                       ])),
-              ElevatedButton(
-                  onPressed: _disconnect, child: const Text('Disconnect')),
-              Text(connectedResult),
               Row(children: [
                 SizedBox(
                   width: 200,
@@ -115,6 +112,25 @@ class _MyAppState extends State<MyApp> {
                   child: const Text('Set Interface Index'),
                 )
               ]),
+              Row(children: [
+                SizedBox(
+                  width: 200,
+                  child: TextField(
+                    decoration: const InputDecoration(
+                      hintText: 'Endpoint Index',
+                    ),
+                    controller: indexController,
+                    keyboardType: TextInputType.number,
+                  ),
+                ),
+                ElevatedButton(
+                  onPressed: _setEndpointIndex,
+                  child: const Text('Set Endpoint Index'),
+                )
+              ]),
+              ElevatedButton(
+                  onPressed: _disconnect, child: const Text('Disconnect')),
+              Text(connectedResult),
               ElevatedButton(
                   onPressed: _getServices,
                   child: const Text('Get Bluetooth Services')),
@@ -228,6 +244,20 @@ Writable w/o response: ${item.isWritableWithoutResponse}
       await usbDevice?.setInterfaceIndex(index);
       setState(() {
         connectedResult = 'Set interface $index';
+      });
+    } catch (ex) {
+      setState(() {
+        connectedResult = ex.toString();
+      });
+    }
+  }
+
+  Future<void> _setEndpointIndex() async {
+    try {
+      final index = int.parse(indexController.text);
+      await usbDevice?.setEndpointIndex(index);
+      setState(() {
+        connectedResult = 'Set endpoint $index';
       });
     } catch (ex) {
       setState(() {

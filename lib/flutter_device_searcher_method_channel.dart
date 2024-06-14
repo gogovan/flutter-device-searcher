@@ -46,6 +46,16 @@ class MethodChannelFlutterDeviceSearcher extends FlutterDeviceSearcherPlatform {
   }
 
   @override
+  Future<bool> setEndpointIndex(int endpointIndex) async {
+    final result = await methodChannel.invokeMethod<bool>(
+      'hk.gogovan.device_searcher.setEndpointIndex',
+      <String, dynamic>{'endpointIndex': endpointIndex},
+    );
+
+    return result ?? false;
+  }
+
+  @override
   Future<bool> disconnect() async {
     final result = await methodChannel
         .invokeMethod<bool>('hk.gogovan.device_searcher.disconnectUsb');

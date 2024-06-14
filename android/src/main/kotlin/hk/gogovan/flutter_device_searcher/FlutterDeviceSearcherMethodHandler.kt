@@ -89,6 +89,17 @@ class FlutterDeviceSearcherMethodHandler(
                         }
                     }
                 }
+                "hk.gogovan.device_searcher.setEndpointIndex" -> {
+                    CoroutineScope(Dispatchers.IO).launch {
+                        val endpointNumber = call.argument<Int>("endpointIndex");
+                        if (endpointNumber == null) {
+                            result.error("1001", "endpointNumber is required", null)
+                        } else {
+                            usbSearcher?.setEndpointIndex(endpointNumber)
+                            result.success(true)
+                        }
+                    }
+                }
                 "hk.gogovan.device_searcher.disconnectUsb" -> {
                     CoroutineScope(Dispatchers.IO).launch {
                         usbSearcher?.disconnectDevice()

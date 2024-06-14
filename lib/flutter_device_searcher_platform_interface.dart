@@ -38,6 +38,10 @@ abstract class FlutterDeviceSearcherPlatform extends PlatformInterface {
     throw UnimplementedError('setInterfaceIndex() has not been implemented.');
   }
 
+  Future<bool> setEndpointIndex(int endpointIndex) {
+    throw UnimplementedError('setEndpointIndex() has not been implemented.');
+  }
+
   Future<bool> disconnect() {
     throw UnimplementedError('disconnect() has not been implemented.');
   }

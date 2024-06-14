@@ -15,4 +15,7 @@ class UsbDevice extends DeviceInterface<UsbResult> {
 
   Future<bool> setInterfaceIndex(int interfaceIndex) =>
       FlutterDeviceSearcherPlatform.instance.setInterfaceIndex(interfaceIndex);
+
+  Future<bool> setEndpointIndex(int endpointIndex) =>
+      FlutterDeviceSearcherPlatform.instance.setEndpointIndex(endpointIndex);
 }
