@@ -1,6 +1,6 @@
 # flutter_device_searcher
 
-A generic library to search for external device using various connection technologies. Support Bluetooth LE and USB (Android, device search only).
+A generic library to search for external device using various connection technologies. Support Bluetooth LE (Android/iOS) and USB (Android only).
 
 ## Getting Started
 
