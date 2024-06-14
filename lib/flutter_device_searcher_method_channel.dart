@@ -62,4 +62,14 @@ class MethodChannelFlutterDeviceSearcher extends FlutterDeviceSearcherPlatform {
 
     return result ?? false;
   }
+
+  @override
+  Future<Uint8List> transfer(Uint8List buffer, int? length) async {
+    final result = await methodChannel.invokeMethod<Uint8List>(
+      'hk.gogovan.device_searcher.transfer',
+      <String, dynamic>{'buffer': buffer, 'length': length},
+    );
+
+    return result ?? Uint8List(0);
+  }
 }

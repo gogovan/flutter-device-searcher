@@ -100,6 +100,14 @@ class FlutterDeviceSearcherMethodHandler(
                         }
                     }
                 }
+                "hk.gogovan.device_searcher.transfer" -> {
+                    CoroutineScope(Dispatchers.IO).launch {
+                        val buffer = call.argument<ByteArray>("buffer");
+                        val length = call.argument<int>("length");
+                        val response = usbSearcher?.transfer(buffer, length)
+                        result.success(response)
+                    }
+                }
                 "hk.gogovan.device_searcher.disconnectUsb" -> {
                     CoroutineScope(Dispatchers.IO).launch {
                         usbSearcher?.disconnectDevice()

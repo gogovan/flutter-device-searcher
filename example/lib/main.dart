@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
+import 'dart:typed_data';
 
 import 'package:logging/logging.dart';
 import 'package:flutter_device_searcher/device/bluetooth/bluetooth_device.dart';
@@ -110,18 +111,6 @@ class _MyAppState extends State<MyApp> {
                 ElevatedButton(
                   onPressed: _setInterfaceIndex,
                   child: const Text('Set Interface Index'),
-                )
-              ]),
-              Row(children: [
-                SizedBox(
-                  width: 200,
-                  child: TextField(
-                    decoration: const InputDecoration(
-                      hintText: 'Endpoint Index',
-                    ),
-                    controller: indexController,
-                    keyboardType: TextInputType.number,
-                  ),
                 ),
                 ElevatedButton(
                   onPressed: _setEndpointIndex,
@@ -363,8 +352,12 @@ Writable w/o response: ${item.isWritableWithoutResponse}
 
   Future<void> _write() async {
     try {
-      await btDevice!.write(writeController.text.codeUnits, selectedServiceUuid,
-          selectedCharacteristicUuid);
+      if (btDevice != null) {
+        await btDevice?.write(writeController.text.codeUnits,
+            selectedServiceUuid, selectedCharacteristicUuid);
+      } else if (usbDevice != null) {
+        await usbDevice?.transfer(writeController.text.codeUnits);
+      }
     } catch (ex) {
       setState(() {
         connectedResult = ex.toString();
@@ -374,11 +367,20 @@ Writable w/o response: ${item.isWritableWithoutResponse}
 
   Future<void> _read() async {
     try {
-      final result = await btDevice!.read(selectedServiceUuid.toString(),
-          selectedCharacteristicUuid.toString());
-      print('_read: ${result.toString()}');
+      List<int>? result;
+      if (btDevice != null) {
+        result = await btDevice?.read(selectedServiceUuid.toString(),
+            selectedCharacteristicUuid.toString());
+      } else if (usbDevice != null) {
+        result = await usbDevice?.transfer(Uint8List(0));
+      }
+
       setState(() {
-        readResult = String.fromCharCodes(result);
+        if (result != null) {
+          readResult = String.fromCharCodes(result);
+        } else {
+          readResult = 'No data';
+        }
       });
     } catch (ex) {
       setState(() {
@@ -390,8 +392,8 @@ Writable w/o response: ${item.isWritableWithoutResponse}
   void _readStream() {
     try {
       readStreamSubscription?.cancel();
-      readStreamSubscription = btDevice!
-          .readAsStream(selectedServiceUuid.toString(),
+      readStreamSubscription = btDevice
+          ?.readAsStream(selectedServiceUuid.toString(),
               selectedCharacteristicUuid.toString())
           .listen((event) {
         print('_readStream ${event.toString()}');

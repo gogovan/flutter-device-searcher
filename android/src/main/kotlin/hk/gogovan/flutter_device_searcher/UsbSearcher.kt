@@ -103,14 +103,37 @@ class UsbSearcher(private val context: Context) {
     }
 
     suspend fun setInterfaceIndex(index: Int) {
-        currentConnection?.claimInterface(currentDevice?.getInterface(index), true)?.let {
-            currentInterface = index
+        currentDevice?.getInterface(currentInterface)?.let {
+            currentConnection?.releaseInterface(it)
+        }
+
+        currentDevice?.getInterface(index)?.let {
+            currentConnection?.claimInterface(it, true)?.let {
+                currentInterface = index
+            }
         }
     }
 
     suspend fun setEndpointIndex(index: Int) {
         currentDevice?.getInterface(currentInterface)?.getEndpoint(index)?.let {
             currentEndpoint = index
+        }
+    }
+
+    suspend fun transfer(dataArray: ByteArray?, length: int?): ByteArray {
+        val endpoint = currentDevice?.getInterface(currentInterface)?.getEndpoint(currentEndpoint)
+        val packetSize = length == null ? (endpoint?.maxPacketSize ?: 0) : length
+        if (endpoint?.direction == UsbConstants.USB_DIR_IN) {
+            // read
+            val response = ByteArray(packetSize)
+            val result = currentConnection?.bulkTransfer(endpoint, response, response.size, 0)
+            return response
+        } else if (endpoint?.direction == UsbConstants.USB_DIR_OUT && dataArray != null) {
+            // write
+            currentConnection?.bulkTransfer(currentDevice?.getInterface(currentInterface)?.getEndpoint(currentEndpoint), dataArray, minOf(packetSize, dataArray.size), 0)
+            return ByteArray(0)
+        } else {
+            throw Exception("No endpoint selected")
         }
     }
 
