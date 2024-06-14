@@ -66,6 +66,7 @@ defaultConfig {
 
 # Usage
 
+## Connect to device
 1. Create a searcher according to connection technology desired. All searchers implement `DeviceSearcherInterface`.
    - For BLE, use `BluetoothSearcher`
 2. Invoke and listen to the Dart `Stream` returned from `search()` method. Subclasses of `DeviceSearchResult`s are sent to your listener.
@@ -87,13 +88,29 @@ final searchStream = btSearcher?.search().listen(cancelOnError: true, (event) {
   final btDevice = BluetoothDevice(deviceSearcher, searchedBtResult[index]);
   await btDevice.connect();
 ```
-5. After connecting to device, you may query available services and characteristics.
+
+## Transfer data after connection
+### Bluetooth
+- After connecting to device, you may query available services and characteristics.
 ```dart
   final list = await btDevice.getServices();
 ```
-6. Synchronous read/write from/to the device is done by `read` and `write` call respectively.
-7. Asynchronous read is done by `readAsStream` method, which returns a Dart `Stream`. Listen to stream to receive results.
-8. To disconnect from the device, call `disconnect` on the device.
+- Synchronous read/write from/to the device is done by `read` and `write` call respectively.
+- Asynchronous read is done by `readAsStream` method, which returns a Dart `Stream`. Listen to stream to receive results.
+
+### USB
+- Set interface index and then endpoint number before sending or receiving data. Details of these can be found in the UsbResult. For details refer to [Android documentation](https://developer.android.com/develop/connectivity/usb)
+```
+await usbDevice?.setInterfaceIndex(index);
+await usbDevice?.setEndpointIndex(index);
+```
+- After interface and endpoint is set, use `transfer` to either read or write data, depending on whether the interface is read or write.
+```
+List<int> result = await usbDevice?.transfer(Uint8List(0));
+```
+
+## Disconnect from device
+- To disconnect from the device, call `disconnect` on the device.
 ```dart
   await btDevice.disconnect();
 ```
