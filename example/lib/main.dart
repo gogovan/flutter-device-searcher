@@ -174,6 +174,22 @@ Writable w/o response: ${item.isWritableWithoutResponse}
               Row(
                 children: [
                   ElevatedButton(
+                    onPressed: _isBtConnected,
+                    child: const Text(
+                      'Check BT is connected',
+                    ),
+                  ),
+                  ElevatedButton(
+                    onPressed: _isUsbConnected,
+                    child: const Text(
+                      'Check USB is connected',
+                    ),
+                  )
+                ],
+              ),
+              Row(
+                children: [
+                  ElevatedButton(
                       onPressed: _readStream, child: const Text('Read Stream')),
                   ElevatedButton(
                       onPressed: _stopReadStream, child: const Text('Stop')),
@@ -313,6 +329,32 @@ Writable w/o response: ${item.isWritableWithoutResponse}
 
       setState(() {
         connectedResult = 'Connected to device $index';
+      });
+    } catch (ex) {
+      setState(() {
+        connectedResult = ex.toString();
+      });
+    }
+  }
+
+  Future<void> _isBtConnected() async {
+    try {
+      final connected = await btDevice?.isConnected() ?? false;
+      setState(() {
+        connectedResult = 'BT Connected: $connected';
+      });
+    } catch (ex) {
+      setState(() {
+        connectedResult = ex.toString();
+      });
+    }
+  }
+
+  Future<void> _isUsbConnected() async {
+    try {
+      final connected = await usbDevice?.isConnected() ?? false;
+      setState(() {
+        connectedResult = 'USB Connected: $connected';
       });
     } catch (ex) {
       setState(() {
