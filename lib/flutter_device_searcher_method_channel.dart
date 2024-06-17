@@ -64,6 +64,14 @@ class MethodChannelFlutterDeviceSearcher extends FlutterDeviceSearcherPlatform {
   }
 
   @override
+  Future<bool> isConnected() async {
+    final result = await methodChannel
+        .invokeMethod<bool>('hk.gogovan.device_searcher.isConnected');
+
+    return result ?? false;
+  }
+
+  @override
   Future<Uint8List> transfer(Uint8List buffer, int? length) async {
     final result = await methodChannel.invokeMethod<Uint8List>(
       'hk.gogovan.device_searcher.transfer',

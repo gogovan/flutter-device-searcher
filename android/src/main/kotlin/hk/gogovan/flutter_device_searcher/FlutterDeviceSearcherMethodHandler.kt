@@ -108,6 +108,12 @@ class FlutterDeviceSearcherMethodHandler(
                         result.success(response)
                     }
                 }
+                "hk.gogovan.device_searcher.isConnected" -> {
+                    CoroutineScope(Dispatchers.IO).launch {
+                        val isConnected = usbSearcher?.isConnected()
+                        result.success(isConnected)
+                    }
+                }
                 "hk.gogovan.device_searcher.disconnectUsb" -> {
                     CoroutineScope(Dispatchers.IO).launch {
                         usbSearcher?.disconnectDevice()

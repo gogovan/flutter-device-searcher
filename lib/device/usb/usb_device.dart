@@ -8,6 +8,11 @@ class UsbDevice extends DeviceInterface<UsbResult> {
   UsbDevice(super.device);
 
   @override
+  Future<bool> isConnected() async =>
+      await super.isConnected() &&
+      await FlutterDeviceSearcherPlatform.instance.isConnected();
+
+  @override
   Future<bool> connectImpl(UsbResult inSearchResult) =>
       FlutterDeviceSearcherPlatform.instance.connect(inSearchResult.deviceName);
 

@@ -24,7 +24,8 @@ class BluetoothDevice extends DeviceInterface<BluetoothResult> {
       );
 
   @override
-  bool isConnected() => super.isConnected() && searcher.isReady();
+  Future<bool> isConnected() async =>
+      await super.isConnected() && searcher.isReady();
 
   @override
   Future<bool> connectImpl(BluetoothResult inSearchResult) {
@@ -88,7 +89,7 @@ class BluetoothDevice extends DeviceInterface<BluetoothResult> {
 
   Future<List<BluetoothService>> getServices() async {
     final id = searchResult.id;
-    if (!isConnected()) {
+    if (!await isConnected()) {
       throw const InvalidConnectionStateError('Device not connected.');
     }
 
@@ -128,7 +129,7 @@ class BluetoothDevice extends DeviceInterface<BluetoothResult> {
 
   Future<List<int>> read(String serviceId, String characteristicId) async {
     final id = searchResult.id;
-    if (!isConnected()) {
+    if (!await isConnected()) {
       throw const InvalidConnectionStateError('Device not connected.');
     }
 
@@ -143,9 +144,6 @@ class BluetoothDevice extends DeviceInterface<BluetoothResult> {
 
   Stream<List<int>> readAsStream(String serviceId, String characteristicId) {
     final id = searchResult.id;
-    if (!isConnected()) {
-      throw const InvalidConnectionStateError('Device not connected.');
-    }
 
     final characteristic = QualifiedCharacteristic(
       characteristicId: Uuid.parse(characteristicId),
@@ -162,7 +160,7 @@ class BluetoothDevice extends DeviceInterface<BluetoothResult> {
     String characteristicId,
   ) async {
     final id = searchResult.id;
-    if (!isConnected()) {
+    if (!await isConnected()) {
       throw const InvalidConnectionStateError('Device not connected.');
     }
 

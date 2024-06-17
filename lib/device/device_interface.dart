@@ -20,7 +20,7 @@ abstract class DeviceInterface<T extends DeviceSearchResult> {
   /// If there is a underlying connection to maintain, override this method to return the actual connection status,
   /// in conjunction to the state maintained by the DeviceInterface.
   @mustCallSuper
-  bool isConnected() => _connected;
+  Future<bool> isConnected() async => _connected;
 
   /// Return a stream that provide the status of the connection continuously.
   /// This should be in sync with `isConnected()` method.
