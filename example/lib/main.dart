@@ -356,7 +356,10 @@ Writable w/o response: ${item.isWritableWithoutResponse}
         await btDevice?.write(writeController.text.codeUnits,
             selectedServiceUuid, selectedCharacteristicUuid);
       } else if (usbDevice != null) {
-        await usbDevice?.transfer(writeController.text.codeUnits);
+        await usbDevice?.transfer(
+          Uint8List.fromList(writeController.text.codeUnits),
+          null,
+        );
       }
     } catch (ex) {
       setState(() {
@@ -372,7 +375,7 @@ Writable w/o response: ${item.isWritableWithoutResponse}
         result = await btDevice?.read(selectedServiceUuid.toString(),
             selectedCharacteristicUuid.toString());
       } else if (usbDevice != null) {
-        result = await usbDevice?.transfer(Uint8List(0));
+        result = await usbDevice?.transfer(Uint8List(0), 0);
       }
 
       setState(() {

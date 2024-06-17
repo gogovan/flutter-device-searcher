@@ -120,9 +120,9 @@ class UsbSearcher(private val context: Context) {
         }
     }
 
-    suspend fun transfer(dataArray: ByteArray?, length: int?): ByteArray {
+    suspend fun transfer(dataArray: ByteArray?, length: Int?): ByteArray {
         val endpoint = currentDevice?.getInterface(currentInterface)?.getEndpoint(currentEndpoint)
-        val packetSize = length == null ? (endpoint?.maxPacketSize ?: 0) : length
+        val packetSize = if (length == null) (endpoint?.maxPacketSize ?: 0) else length
         if (endpoint?.direction == UsbConstants.USB_DIR_IN) {
             // read
             val response = ByteArray(packetSize)
