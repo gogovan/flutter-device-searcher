@@ -84,8 +84,8 @@ class FlutterDeviceSearcherMethodHandler(
                         if (index == null) {
                             result.error("1001", "index is required", null)
                         } else {
-                            usbSearcher?.setInterfaceIndex(index)
-                            result.success(true)
+                            val connected = usbSearcher?.setInterfaceIndex(index)
+                            result.success(connected)
                         }
                     }
                 }
@@ -95,8 +95,8 @@ class FlutterDeviceSearcherMethodHandler(
                         if (endpointNumber == null) {
                             result.error("1001", "endpointNumber is required", null)
                         } else {
-                            usbSearcher?.setEndpointIndex(endpointNumber)
-                            result.success(true)
+                            val connected = usbSearcher?.setEndpointIndex(endpointNumber)
+                            result.success(connected)
                         }
                     }
                 }

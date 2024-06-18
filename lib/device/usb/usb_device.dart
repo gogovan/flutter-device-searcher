@@ -26,6 +26,9 @@ class UsbDevice extends DeviceInterface<UsbResult> {
   Future<bool> setEndpointIndex(int endpointIndex) =>
       FlutterDeviceSearcherPlatform.instance.setEndpointIndex(endpointIndex);
 
-  Future<Uint8List> transfer(Uint8List buffer, int? length) =>
+  Future<Uint8List> read(int? length) =>
+      FlutterDeviceSearcherPlatform.instance.transfer(null, length);
+
+  Future<Uint8List> write(Uint8List buffer, int? length) =>
       FlutterDeviceSearcherPlatform.instance.transfer(buffer, length);
 }

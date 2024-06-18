@@ -32,8 +32,8 @@ class UsbSearcher(private val context: Context) {
 
     private var currentConnection: UsbDeviceConnection? = null
     private var currentDevice: UsbDevice? = null
-    private var currentInterface: Int = 0
-    private var currentEndpoint: Int = 0
+    private var currentInterface: Int = -1
+    private var currentEndpoint: Int = -1
 
     private var onPermission: () -> Unit = { }
 
@@ -102,25 +102,33 @@ class UsbSearcher(private val context: Context) {
         currentConnection = manager.openDevice(device)
     }
 
-    suspend fun setInterfaceIndex(index: Int) {
-        currentDevice?.getInterface(currentInterface)?.let {
-            currentConnection?.releaseInterface(it)
+    suspend fun setInterfaceIndex(index: Int): Boolean {
+        if (currentInterface >= 0) {
+            currentDevice?.getInterface(currentInterface)?.let {
+                currentConnection?.releaseInterface(it)
+            }
         }
 
         currentDevice?.getInterface(index)?.let {
             currentConnection?.claimInterface(it, true)?.let {
                 currentInterface = index
+                return true;
             }
         }
+        return false;
     }
 
-    suspend fun setEndpointIndex(index: Int) {
+    suspend fun setEndpointIndex(index: Int): Boolean {
+        if (currentInterface < 0) throw Exception("No interface selected")
         currentDevice?.getInterface(currentInterface)?.getEndpoint(index)?.let {
             currentEndpoint = index
+            return true;
         }
+        return false;
     }
 
     suspend fun transfer(dataArray: ByteArray?, length: Int?): ByteArray {
+        if (currentInterface < 0 || currentEndpoint < 0) throw Exception("No interface/endpoint selected")
         val endpoint = currentDevice?.getInterface(currentInterface)?.getEndpoint(currentEndpoint)
         val packetSize = if (length == null) (endpoint?.maxPacketSize ?: 0) else length
         if (endpoint?.direction == UsbConstants.USB_DIR_IN) {
@@ -128,7 +136,8 @@ class UsbSearcher(private val context: Context) {
             val response = ByteArray(packetSize)
             val result = currentConnection?.bulkTransfer(endpoint, response, response.size, 0)
             return response
-        } else if (endpoint?.direction == UsbConstants.USB_DIR_OUT && dataArray != null) {
+        } else if (endpoint?.direction == UsbConstants.USB_DIR_OUT) {
+            if (dataArray == null) throw Exception("No data to write")
             // write
             currentConnection?.bulkTransfer(currentDevice?.getInterface(currentInterface)?.getEndpoint(currentEndpoint), dataArray, minOf(packetSize, dataArray.size), 0)
             return ByteArray(0)

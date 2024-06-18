@@ -246,9 +246,9 @@ Writable w/o response: ${item.isWritableWithoutResponse}
   Future<void> _setInterfaceIndex() async {
     try {
       final index = int.parse(indexController.text);
-      await usbDevice?.setInterfaceIndex(index);
+      final success = await usbDevice?.setInterfaceIndex(index);
       setState(() {
-        connectedResult = 'Set interface $index';
+        connectedResult = 'Set interface $index. Success: $success';
       });
     } catch (ex) {
       setState(() {
@@ -260,9 +260,9 @@ Writable w/o response: ${item.isWritableWithoutResponse}
   Future<void> _setEndpointIndex() async {
     try {
       final index = int.parse(indexController.text);
-      await usbDevice?.setEndpointIndex(index);
+      final success = await usbDevice?.setEndpointIndex(index);
       setState(() {
-        connectedResult = 'Set endpoint $index';
+        connectedResult = 'Set endpoint $index. Success: $success';
       });
     } catch (ex) {
       setState(() {
@@ -398,7 +398,7 @@ Writable w/o response: ${item.isWritableWithoutResponse}
         await btDevice?.write(writeController.text.codeUnits,
             selectedServiceUuid, selectedCharacteristicUuid);
       } else if (usbDevice != null) {
-        await usbDevice?.transfer(
+        await usbDevice?.write(
           Uint8List.fromList(writeController.text.codeUnits),
           null,
         );
@@ -417,7 +417,7 @@ Writable w/o response: ${item.isWritableWithoutResponse}
         result = await btDevice?.read(selectedServiceUuid.toString(),
             selectedCharacteristicUuid.toString());
       } else if (usbDevice != null) {
-        result = await usbDevice?.transfer(Uint8List(0), 0);
+        result = await usbDevice?.read(null);
       }
 
       setState(() {
