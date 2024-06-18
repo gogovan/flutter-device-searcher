@@ -58,9 +58,9 @@ void main() {
 
     test('connect/disconnect success', () async {
       expect(await device.connect(), true);
-      expect(device.isConnected(), true);
+      expect(await device.isConnected(), true);
       await device.disconnect();
-      expect(device.isConnected(), false);
+      expect(await device.isConnected(), false);
       expect(await device.connectStateStream().take(2).toList(), [true, false]);
     });
   });
@@ -93,9 +93,9 @@ void main() {
 
     test('connect/disconnect success', () async {
       expect(await device.connect(), true);
-      expect(device.isConnected(), false);
+      expect(await device.isConnected(), false);
       await device.disconnect();
-      expect(device.isConnected(), false);
+      expect(await device.isConnected(), false);
       expect(
         await device.connectStateStream().take(2).toList(),
         [false, false],
