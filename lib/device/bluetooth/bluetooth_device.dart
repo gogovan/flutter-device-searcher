@@ -5,18 +5,15 @@ import 'package:flutter_device_searcher/device/device_interface.dart';
 import 'package:flutter_device_searcher/device_searcher/bluetooth_searcher.dart';
 import 'package:flutter_device_searcher/exception/device_connection_error.dart';
 import 'package:flutter_device_searcher/exception/invalid_connection_state_error.dart';
-import 'package:flutter_device_searcher/exception/invalid_device_result_error.dart';
 import 'package:flutter_device_searcher/search_result/bluetooth_result.dart';
-import 'package:flutter_device_searcher/search_result/device_search_result.dart';
 import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
 import 'package:rxdart/rxdart.dart';
 
 /// A Bluetooth LE device.
-class BluetoothDevice extends DeviceInterface {
-  BluetoothDevice(this.searcher, super.device);
+class BluetoothDevice extends DeviceInterface<BluetoothResult> {
+  BluetoothDevice(this.searcher, super.searchResult);
 
   final BluetoothSearcher searcher;
-  BluetoothResult? device;
 
   StreamSubscription<bool>? connection;
 
@@ -27,16 +24,11 @@ class BluetoothDevice extends DeviceInterface {
       );
 
   @override
-  bool isConnected() => super.isConnected() && searcher.isReady();
+  Future<bool> isConnected() async =>
+      await super.isConnected() && searcher.isReady();
 
   @override
-  Future<bool> connectImpl(DeviceSearchResult inDevice) {
-    if (inDevice is! BluetoothResult) {
-      throw InvalidDeviceResultError(
-        'Expected BluetoothResult. Received ${inDevice.runtimeType}',
-      );
-    }
-
+  Future<bool> connectImpl(BluetoothResult inSearchResult) {
     if (searcher.isSearching()) {
       // Some phones may misbehave when trying to connect a bluetooth device while scanning.
       // Ref https://github.com/dariuszseweryn/RxAndroidBle/wiki/FAQ:-Cannot-connect#connect-while-scanning.
@@ -45,9 +37,9 @@ class BluetoothDevice extends DeviceInterface {
       );
     }
 
-    device = inDevice;
+    searchResult = inSearchResult;
 
-    searcher.logger.fine('Connecting to device $device');
+    searcher.logger.fine('Connecting to device $searchResult');
 
     final completer = Completer<bool>();
 
@@ -58,8 +50,8 @@ class BluetoothDevice extends DeviceInterface {
         TimerStream<bool>(false, const Duration(seconds: 1)).concatWith(
       [
         searcher.flutterBle
-            .connectToDevice(id: inDevice.id)
-            .where((event) => event.deviceId == inDevice.id)
+            .connectToDevice(id: inSearchResult.id)
+            .where((event) => event.deviceId == inSearchResult.id)
             .map(
           (event) {
             searcher.logger.finer('Detected connect state: $event');
@@ -96,13 +88,13 @@ class BluetoothDevice extends DeviceInterface {
   }
 
   Future<List<BluetoothService>> getServices() async {
-    final id = device?.id;
-    if (!isConnected() || id == null) {
+    final id = searchResult.id;
+    if (!await isConnected()) {
       throw const InvalidConnectionStateError('Device not connected.');
     }
 
-    final serviceIds = device?.serviceIds;
-    if (serviceIds == null || serviceIds.isEmpty) {
+    final serviceIds = searchResult.serviceIds;
+    if (serviceIds.isEmpty) {
       return [];
     }
 
@@ -136,8 +128,8 @@ class BluetoothDevice extends DeviceInterface {
   }
 
   Future<List<int>> read(String serviceId, String characteristicId) async {
-    final id = device?.id;
-    if (!isConnected() || id == null) {
+    final id = searchResult.id;
+    if (!await isConnected()) {
       throw const InvalidConnectionStateError('Device not connected.');
     }
 
@@ -151,10 +143,7 @@ class BluetoothDevice extends DeviceInterface {
   }
 
   Stream<List<int>> readAsStream(String serviceId, String characteristicId) {
-    final id = device?.id;
-    if (!isConnected() || id == null) {
-      throw const InvalidConnectionStateError('Device not connected.');
-    }
+    final id = searchResult.id;
 
     final characteristic = QualifiedCharacteristic(
       characteristicId: Uuid.parse(characteristicId),
@@ -170,8 +159,8 @@ class BluetoothDevice extends DeviceInterface {
     String serviceId,
     String characteristicId,
   ) async {
-    final id = device?.id;
-    if (!isConnected() || id == null) {
+    final id = searchResult.id;
+    if (!await isConnected()) {
       throw const InvalidConnectionStateError('Device not connected.');
     }
 

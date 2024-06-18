@@ -87,7 +87,7 @@ mixin BluetoothConnectionMixin {
   }
 
   /// Check if the Bluetooth device is connected.
-  bool isConnected() => btDevice?.isConnected() ?? false;
+  Future<bool> isConnected() => btDevice?.isConnected() ?? Future.value(false);
 
   /// Stream of the connection state of the Bluetooth device.
   Stream<bool> connectStateStream() =>

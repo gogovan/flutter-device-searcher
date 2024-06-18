@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:flutter_device_searcher/flutter_device_searcher_method_channel.dart';
 import 'package:meta/meta.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
@@ -28,5 +30,29 @@ abstract class FlutterDeviceSearcherPlatform extends PlatformInterface {
 
   Future<String> searchUsb() {
     throw UnimplementedError('searchUsb() has not been implemented.');
+  }
+
+  Future<bool> connect(String deviceName) {
+    throw UnimplementedError('connect() has not been implemented.');
+  }
+
+  Future<bool> setInterfaceIndex(int interfaceIndex) {
+    throw UnimplementedError('setInterfaceIndex() has not been implemented.');
+  }
+
+  Future<bool> setEndpointIndex(int endpointIndex) {
+    throw UnimplementedError('setEndpointIndex() has not been implemented.');
+  }
+
+  Future<bool> isConnected() {
+    throw UnimplementedError('isConnected() has not been implemented.');
+  }
+
+  Future<bool> disconnect() {
+    throw UnimplementedError('disconnect() has not been implemented.');
+  }
+
+  Future<Uint8List> transfer(Uint8List? buffer, int? length) {
+    throw UnimplementedError('transfer() has not been implemented.');
   }
 }

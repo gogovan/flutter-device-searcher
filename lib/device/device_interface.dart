@@ -4,14 +4,14 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_device_searcher/search_result/device_search_result.dart';
 
 /// Interface all connectable devices should implement.
-abstract class DeviceInterface {
+abstract class DeviceInterface<T extends DeviceSearchResult> {
   DeviceInterface(this.searchResult);
 
   final StreamController<bool> _connectedController = StreamController();
 
-  /// PrinterSearchResult indicating the device this instance is representing.
+  /// DeviceSearchResult indicating the device this instance is representing.
   @protected
-  DeviceSearchResult searchResult;
+  T searchResult;
 
   bool _connected = false;
 
@@ -20,9 +20,10 @@ abstract class DeviceInterface {
   /// If there is a underlying connection to maintain, override this method to return the actual connection status,
   /// in conjunction to the state maintained by the DeviceInterface.
   @mustCallSuper
-  bool isConnected() => _connected;
+  Future<bool> isConnected() async => _connected;
 
   /// Return a stream that provide the status of the connection continuously.
+  /// This should be in sync with `isConnected()` method.
   @mustCallSuper
   Stream<bool> connectStateStream() => _connectedController.stream;
 
@@ -48,7 +49,7 @@ abstract class DeviceInterface {
   /// Implementors should connect to the specified device, and the device should be ready to use when this method returns normally.
   /// This method should be idempotent - multiple invocation of this method should not result in errors or multiple connections.
   @protected
-  Future<bool> connectImpl(DeviceSearchResult inDevice);
+  Future<bool> connectImpl(T inSearchResult);
 
   /// Disconnect to the currently connected device.
   /// Return true if disconnection successful or already disconnected, false otherwise.

@@ -1,6 +1,6 @@
 # flutter_device_searcher
 
-A generic library to search for external device using various connection technologies. Support Bluetooth LE and USB (Android, device search only).
+A generic library to search for external device using various connection technologies. Support Bluetooth LE (Android/iOS) and USB (Android only).
 
 ## Getting Started
 
@@ -28,6 +28,7 @@ defaultConfig {
     xmlns:tools="http://schemas.android.com/tools"
     package="com.example.flutter_device_searcher_example">
 
+    <!-- Set android:required="false" if Bluetooth feature is not required by your app.-->
     <uses-feature android:name="android.hardware.bluetooth" android:required="true" />
 
     <uses-permission android:name="android.permission.BLUETOOTH" android:maxSdkVersion="30" />
@@ -57,6 +58,7 @@ defaultConfig {
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.flutter_device_searcher_example">
 
+    <!-- Set android:required="false" if USB feature is not required by your app.-->
     <uses-feature android:name="android.hardware.usb.host" android:required="true" />
     
     <uses-permission android:name="hk.gogovan.flutter_device_searcher.USB_PERMISSION" />
@@ -66,12 +68,23 @@ defaultConfig {
 
 # Usage
 
+## Connect to device
 1. Create a searcher according to connection technology desired. All searchers implement `DeviceSearcherInterface`.
-   - For BLE, use `BluetoothSearcher`
+  - For BLE, use `BluetoothSearcher`
+  - For USB, use `UsbSearcher`
 2. Invoke and listen to the Dart `Stream` returned from `search()` method. Subclasses of `DeviceSearchResult`s are sent to your listener.
-   - For BLE, you will receive a `BluetoothResult`. 
-     - `id` is an identifier for the device, it being a MAC address (may be randomized) in Android and a random UUID in iOS.
-     - `name` is the display name for the device.
+  - For BLE, you will receive a `BluetoothResult`. 
+    - `id` is an identifier for the device, it being a MAC address (may be randomized) in Android and a random UUID in iOS.
+      - This may change over different connections even to the same device, so do not store it over app sessions or hold onto it for extended period of time.
+    - `name` is the display name for the device.
+  - For USB, you will receive a `UsbResult`.
+    - `deviceName` is the name of the device as identified by the OS. Use this to connect to device in the `UsbDevice` constructor.
+      - This may change over different connections even to the same device, so do not store it over app sessions or hold onto it for extended period of time.
+    - Other information are also retrieved and can be found in `UsbResult`. You can use these data to determine which device you want to connect to.
+      - For details refer to [Android documentation](https://developer.android.com/develop/connectivity/usb), in particular:
+        - [UsbDevice](https://developer.android.com/reference/android/hardware/usb/UsbDevice)
+        - [UsbInterface](https://developer.android.com/reference/android/hardware/usb/UsbInterface)
+        - [UsbEndpoint](https://developer.android.com/reference/android/hardware/usb/UsbEndpoint)
 ```dart
 final searchStream = btSearcher?.search().listen(cancelOnError: true, (event) {
   final id = event.id;
@@ -87,13 +100,29 @@ final searchStream = btSearcher?.search().listen(cancelOnError: true, (event) {
   final btDevice = BluetoothDevice(deviceSearcher, searchedBtResult[index]);
   await btDevice.connect();
 ```
-5. After connecting to device, you may query available services and characteristics.
+
+## Transfer data after connection
+### Bluetooth
+- After connecting to device, you may query available services and characteristics.
 ```dart
   final list = await btDevice.getServices();
 ```
-6. Synchronous read/write from/to the device is done by `read` and `write` call respectively.
-7. Asynchronous read is done by `readAsStream` method, which returns a Dart `Stream`. Listen to stream to receive results.
-8. To disconnect from the device, call `disconnect` on the device.
+- Synchronous read/write from/to the device is done by `read` and `write` call respectively.
+- Asynchronous read is done by `readAsStream` method, which returns a Dart `Stream`. Listen to stream to receive results.
+
+### USB
+- Set interface index and then endpoint number before sending or receiving data. Details of these can be found in the `UsbResult`.
+```
+await usbDevice?.setInterfaceIndex(index);
+await usbDevice?.setEndpointIndex(index);
+```
+- After interface and endpoint is set, use `transfer` to either read or write data, depending on whether the interface is read or write.
+```
+List<int> result = await usbDevice?.transfer(Uint8List(0));
+```
+
+## Disconnect from device
+- To disconnect from the device, call `disconnect` on the device.
 ```dart
   await btDevice.disconnect();
 ```
