@@ -147,8 +147,8 @@ class UsbSearcher(private val context: Context) {
     }
 
     suspend fun isConnected(): Boolean {
-        val c = currentConnection;
-        return c != null && c.serial != null
+        val c = currentConnection
+        return c != null
     }
 
     suspend fun disconnectDevice() {
