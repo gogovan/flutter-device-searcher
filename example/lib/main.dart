@@ -97,26 +97,6 @@ class _MyAppState extends State<MyApp> {
                         ),
                         Container(color: Colors.blue, height: 1)
                       ])),
-              Row(children: [
-                SizedBox(
-                  width: 200,
-                  child: TextField(
-                    decoration: const InputDecoration(
-                      hintText: 'Interface Index',
-                    ),
-                    controller: indexController,
-                    keyboardType: TextInputType.number,
-                  ),
-                ),
-                ElevatedButton(
-                  onPressed: _setInterfaceIndex,
-                  child: const Text('Set Interface Index'),
-                ),
-                ElevatedButton(
-                  onPressed: _setEndpointIndex,
-                  child: const Text('Set Endpoint Index'),
-                )
-              ]),
               ElevatedButton(
                   onPressed: _disconnect, child: const Text('Disconnect')),
               Text(connectedResult),
@@ -235,34 +215,6 @@ Writable w/o response: ${item.isWritableWithoutResponse}
         setState(() {
           searchedResult = event.toList();
         });
-      });
-    } catch (ex) {
-      setState(() {
-        connectedResult = ex.toString();
-      });
-    }
-  }
-
-  Future<void> _setInterfaceIndex() async {
-    try {
-      final index = int.parse(indexController.text);
-      final success = await usbDevice?.setInterfaceIndex(index);
-      setState(() {
-        connectedResult = 'Set interface $index. Success: $success';
-      });
-    } catch (ex) {
-      setState(() {
-        connectedResult = ex.toString();
-      });
-    }
-  }
-
-  Future<void> _setEndpointIndex() async {
-    try {
-      final index = int.parse(indexController.text);
-      final success = await usbDevice?.setEndpointIndex(index);
-      setState(() {
-        connectedResult = 'Set endpoint $index. Success: $success';
       });
     } catch (ex) {
       setState(() {
@@ -400,7 +352,6 @@ Writable w/o response: ${item.isWritableWithoutResponse}
       } else if (usbDevice != null) {
         await usbDevice?.write(
           Uint8List.fromList(writeController.text.codeUnits),
-          null,
         );
       }
     } catch (ex) {

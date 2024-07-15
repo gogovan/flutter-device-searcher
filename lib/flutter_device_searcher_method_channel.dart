@@ -29,7 +29,7 @@ class MethodChannelFlutterDeviceSearcher extends FlutterDeviceSearcherPlatform {
   Future<bool> connect(String deviceName) async {
     final result = await methodChannel.invokeMethod<bool>(
       'hk.gogovan.device_searcher.connectUsb',
-      <String, dynamic>{'deviceName': deviceName},
+      <String, dynamic>{'index': deviceName},
     );
 
     return result ?? false;
@@ -72,12 +72,22 @@ class MethodChannelFlutterDeviceSearcher extends FlutterDeviceSearcherPlatform {
   }
 
   @override
-  Future<Uint8List> transfer(Uint8List? buffer, int? length) async {
+  Future<Uint8List> read(int? length) async {
     final result = await methodChannel.invokeMethod<Uint8List>(
-      'hk.gogovan.device_searcher.transfer',
-      <String, dynamic>{'buffer': buffer, 'length': length},
+      'hk.gogovan.device_searcher.read',
+      <String, dynamic>{'length': length},
     );
 
     return result ?? Uint8List(0);
+  }
+
+  @override
+  Future<bool> write(Uint8List data) async {
+    final result = await methodChannel.invokeMethod<bool>(
+      'hk.gogovan.device_searcher.write',
+      <String, dynamic>{'data': data},
+    );
+
+    return result ?? false;
   }
 }

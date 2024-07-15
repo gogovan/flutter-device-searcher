@@ -1,6 +1,5 @@
 package hk.gogovan.flutter_device_searcher
 
-import android.util.Log
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.PendingIntent
@@ -13,10 +12,16 @@ import android.hardware.usb.UsbDevice
 import android.hardware.usb.UsbDeviceConnection
 import android.hardware.usb.UsbManager
 import android.os.Build
+import com.hoho.android.usbserial.driver.UsbSerialProber
+import com.hoho.android.usbserial.driver.UsbSerialDriver
+import com.hoho.android.usbserial.driver.UsbSerialPort
 
 class UsbSearcher(private val context: Context) {
     companion object {
         private const val ACTION_USB_PERMISSION = "hk.gogovan.flutter_device_searcher.USB_PERMISSION"
+
+        private const val WRITE_WAIT_MILLIS = 30000
+        private const val READ_WAIT_MILLIS = 5000
     }
 
     private val usbReceiver = object : BroadcastReceiver() {
@@ -30,12 +35,13 @@ class UsbSearcher(private val context: Context) {
     private var currentActivity: Activity? = null
     private var permissionIntent: PendingIntent? = null
 
-    private var currentConnection: UsbDeviceConnection? = null
-    private var currentDevice: UsbDevice? = null
-    private var currentInterface: Int = -1
-    private var currentEndpoint: Int = -1
+    private var driver: UsbSerialDriver? = null
+    private var connection: UsbDeviceConnection? = null
+    private var port: UsbSerialPort? = null
 
     private var onPermission: () -> Unit = { }
+
+    private var searchedDrivers: Map<Int, UsbSerialDriver> = mapOf()
 
     @SuppressLint("UnspecifiedRegisterReceiverFlag")
     fun setCurrentActivity(activity: Activity) {
@@ -53,16 +59,22 @@ class UsbSearcher(private val context: Context) {
         }
     }
 
-    suspend fun getUsbDevices(): List<UsbDevice> {
-        val result = mutableListOf<UsbDevice>()
+    suspend fun searchUsbDevices(): Map<Int, UsbDevice> {
+        val result = mutableMapOf<Int, UsbDevice>()
         var permissionPendingChecks = false
 
         val manager = context.getSystemService(UsbManager::class.java)
-        for (device in manager.deviceList.values) {
+        val availableDrivers = UsbSerialProber.getDefaultProber().findAllDrivers(manager)
+        if (availableDrivers.isEmpty()) {
+            return emptyMap()
+        }
+
+        val map = mutableMapOf<Int, UsbSerialDriver>()
+        availableDrivers.forEachIndexed { index, driver ->
             permissionPendingChecks = true
-            checkPermission(device) { granted, inDevice ->
+            checkPermission(driver) { granted, inDevice ->
                 if (inDevice != null && granted) {
-                    result.add(inDevice)
+                    map[index] = driver
                 }
                 permissionPendingChecks = false
             }
@@ -72,11 +84,14 @@ class UsbSearcher(private val context: Context) {
             }
         }
 
-        return result
+        searchedDrivers = map
+
+        return map.mapValues { it.value.device }
     }
 
-    private fun checkPermission(device: UsbDevice, onPerm: (Boolean, UsbDevice?) -> Unit): Boolean {
+    private fun checkPermission(driver: UsbSerialDriver, onPerm: (Boolean, UsbDevice?) -> Unit): Boolean {
         val manager = context.getSystemService(UsbManager::class.java)
+        val device = driver.device
 
         return if (manager.hasPermission(device)) {
             onPerm(true, device)
@@ -90,70 +105,55 @@ class UsbSearcher(private val context: Context) {
         }
     }
 
-    suspend fun connectDevice(device: UsbDevice) {
-        if (currentConnection != null) {
-            currentConnection?.close()
-            currentConnection = null
+    suspend fun connectDevice(deviceIndex: Int): Boolean {
+        if (connection != null) {
+            connection?.close()
+            connection = null
         }
 
+        val driver = searchedDrivers[deviceIndex]
         val manager = context.getSystemService(UsbManager::class.java)
 
-        currentDevice = device;
-        currentConnection = manager.openDevice(device)
-    }
-
-    suspend fun setInterfaceIndex(index: Int): Boolean {
-        if (currentInterface >= 0) {
-            currentDevice?.getInterface(currentInterface)?.let {
-                currentConnection?.releaseInterface(it)
-            }
-        }
-
-        currentDevice?.getInterface(index)?.let {
-            currentConnection?.claimInterface(it, true)?.let {
-                currentInterface = index
-                return true;
-            }
-        }
-        return false;
-    }
-
-    suspend fun setEndpointIndex(index: Int): Boolean {
-        if (currentInterface < 0) throw Exception("No interface selected")
-        currentDevice?.getInterface(currentInterface)?.getEndpoint(index)?.let {
-            currentEndpoint = index
-            return true;
-        }
-        return false;
-    }
-
-    suspend fun transfer(dataArray: ByteArray?, length: Int?): ByteArray {
-        if (currentInterface < 0 || currentEndpoint < 0) throw Exception("No interface/endpoint selected")
-        val endpoint = currentDevice?.getInterface(currentInterface)?.getEndpoint(currentEndpoint)
-        val packetSize = if (length == null) (endpoint?.maxPacketSize ?: 0) else length
-        if (endpoint?.direction == UsbConstants.USB_DIR_IN) {
-            // read
-            val response = ByteArray(packetSize)
-            val result = currentConnection?.bulkTransfer(endpoint, response, response.size, 0)
-            return response
-        } else if (endpoint?.direction == UsbConstants.USB_DIR_OUT) {
-            if (dataArray == null) throw Exception("No data to write")
-            // write
-            currentConnection?.bulkTransfer(currentDevice?.getInterface(currentInterface)?.getEndpoint(currentEndpoint), dataArray, minOf(packetSize, dataArray.size), 0)
-            return ByteArray(0)
+        if (driver == null) {
+            return false
         } else {
-            throw Exception("No endpoint selected")
+            val device = driver.device
+            if (!manager.hasPermission(device)) {
+                return false
+            }
+            connection = manager.openDevice(device)
+            if (connection == null) {
+                return false
+            }
+            port = driver.ports[0]
+            port?.open(connection)
+            port?.setParameters(9600, 8, UsbSerialPort.STOPBITS_1, UsbSerialPort.PARITY_NONE)
+            return true
         }
+    }
+
+    suspend fun read(length: Int?): ByteArray {
+        val response = ByteArray(length ?: 1024)
+        port?.read(response, READ_WAIT_MILLIS)
+        return response
+    }
+
+    suspend fun write(buffer: ByteArray): Boolean {
+        if (port == null) {
+            return false
+        }
+        port?.write(buffer, WRITE_WAIT_MILLIS)
+        return true
     }
 
     suspend fun isConnected(): Boolean {
-        val c = currentConnection
+        val c = connection
         return c != null
     }
 
     suspend fun disconnectDevice() {
-        currentConnection?.close()
-        currentConnection = null
+        connection?.close()
+        connection = null
     }
     
 }

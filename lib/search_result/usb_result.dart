@@ -88,6 +88,7 @@ class UsbEndpointResult {
 
 class UsbResult implements DeviceSearchResult {
   const UsbResult({
+    required this.index,
     required this.deviceName,
     this.vendorId,
     this.productId,
@@ -98,6 +99,7 @@ class UsbResult implements DeviceSearchResult {
     this.interfaces,
   });
 
+  final int index;
   final String deviceName;
   final String? vendorId;
   final String? productId;
