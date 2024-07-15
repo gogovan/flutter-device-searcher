@@ -8,7 +8,7 @@ class MethodChannelFlutterDeviceSearcher extends FlutterDeviceSearcherPlatform {
           'hk.gogovan.flutter_device_searcher',
         ),
         readChannel = const EventChannel(
-          'hk.gogovan.flutter_device_searcher.read',
+          'hk.gogovan.flutter_device_searcher.usbRead',
         );
 
   @visibleForTesting

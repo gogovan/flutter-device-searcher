@@ -86,17 +86,18 @@ class _MyAppState extends State<MyApp> {
                   .toList()
                   .asMap()
                   .entries
-                  .map((item) => Column(children: [
-                        Row(
-                          children: [
-                            Expanded(child: Text(item.value.toString())),
-                            ElevatedButton(
-                                onPressed: () => _connect(item.key),
-                                child: const Text('Connect')),
-                          ],
-                        ),
-                        Container(color: Colors.blue, height: 1)
-                      ])),
+                  .map((item) =>
+                  Column(children: [
+                    Row(
+                      children: [
+                        Expanded(child: Text(item.value.toString())),
+                        ElevatedButton(
+                            onPressed: () => _connect(item.key),
+                            child: const Text('Connect')),
+                      ],
+                    ),
+                    Container(color: Colors.blue, height: 1)
+                  ])),
               ElevatedButton(
                   onPressed: _disconnect, child: const Text('Disconnect')),
               Text(connectedResult),
@@ -106,11 +107,12 @@ class _MyAppState extends State<MyApp> {
               ...serviceList
                   .expand((element) => element.characteristics)
                   .toList()
-                  .map((item) => Column(
+                  .map((item) =>
+                  Column(
+                    children: [
+                      Row(
                         children: [
-                          Row(
-                            children: [
-                              Expanded(child: Text('''
+                          Expanded(child: Text('''
 Service ${item.serviceId}
 Characteristic ${item.characteristicId}
 Readable: ${item.isReadable}
@@ -119,18 +121,18 @@ Notifiable: ${item.isNotifiable}
 Writable w/ response: ${item.isWritableWithResponse}
 Writable w/o response: ${item.isWritableWithoutResponse}
                   ''')),
-                              ElevatedButton(
-                                  onPressed: () {
-                                    selectedServiceUuid = item.serviceId;
-                                    selectedCharacteristicUuid =
-                                        item.characteristicId;
-                                  },
-                                  child: Text('Use for R/W'))
-                            ],
-                          ),
-                          Container(color: Colors.blue, height: 1)
+                          ElevatedButton(
+                              onPressed: () {
+                                selectedServiceUuid = item.serviceId;
+                                selectedCharacteristicUuid =
+                                    item.characteristicId;
+                              },
+                              child: Text('Use for R/W'))
                         ],
-                      )),
+                      ),
+                      Container(color: Colors.blue, height: 1)
+                    ],
+                  )),
               Row(
                 children: [
                   SizedBox(
@@ -212,10 +214,10 @@ Writable w/o response: ${item.isWritableWithoutResponse}
     try {
       _searchStream =
           usbSearcher?.search().listen(cancelOnError: true, (event) {
-        setState(() {
-          searchedResult = event.toList();
-        });
-      });
+            setState(() {
+              searchedResult = event.toList();
+            });
+          });
     } catch (ex) {
       setState(() {
         connectedResult = ex.toString();
@@ -398,13 +400,11 @@ Writable w/o response: ${item.isWritableWithoutResponse}
           });
         });
       } else if (usbDevice != null) {
-        readStreamSubscription = usbDevice
-            ?.readStream()
-            .listen((event) {
+        readStreamSubscription = usbDevice?.readStream().listen((event) {
           setState(() {
             readStreamResult = String.fromCharCodes(event);
           });
-        }
+        });
       }
     } catch (ex) {
       setState(() {
