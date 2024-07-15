@@ -30,6 +30,9 @@ class UsbDevice extends DeviceInterface<UsbResult> {
   Future<Uint8List> read(int? length) =>
       FlutterDeviceSearcherPlatform.instance.read(length);
 
+  Stream<Uint8List> readStream() =>
+      FlutterDeviceSearcherPlatform.instance.readStream();
+
   Future<bool> write(Uint8List buffer) =>
       FlutterDeviceSearcherPlatform.instance.write(buffer);
 }

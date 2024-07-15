@@ -388,15 +388,24 @@ Writable w/o response: ${item.isWritableWithoutResponse}
   void _readStream() {
     try {
       readStreamSubscription?.cancel();
-      readStreamSubscription = btDevice
-          ?.readAsStream(selectedServiceUuid.toString(),
-              selectedCharacteristicUuid.toString())
-          .listen((event) {
-        print('_readStream ${event.toString()}');
-        setState(() {
-          readStreamResult = String.fromCharCodes(event);
+      if (btDevice != null) {
+        readStreamSubscription = btDevice
+            ?.readAsStream(selectedServiceUuid.toString(),
+            selectedCharacteristicUuid.toString())
+            .listen((event) {
+          setState(() {
+            readStreamResult = String.fromCharCodes(event);
+          });
         });
-      });
+      } else if (usbDevice != null) {
+        readStreamSubscription = usbDevice
+            ?.readStream()
+            .listen((event) {
+          setState(() {
+            readStreamResult = String.fromCharCodes(event);
+          });
+        }
+      }
     } catch (ex) {
       setState(() {
         readStreamResult = ex.toString();

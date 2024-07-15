@@ -6,16 +6,23 @@ class MethodChannelFlutterDeviceSearcher extends FlutterDeviceSearcherPlatform {
   MethodChannelFlutterDeviceSearcher()
       : methodChannel = const MethodChannel(
           'hk.gogovan.flutter_device_searcher',
+        ),
+        readChannel = const EventChannel(
+          'hk.gogovan.flutter_device_searcher.read',
         );
 
   @visibleForTesting
   MethodChannelFlutterDeviceSearcher.mocked(
     this.methodChannel,
+    this.readChannel,
   );
 
   /// The method channel used to interact with the native platform.
   @visibleForTesting
   final MethodChannel methodChannel;
+
+  @visibleForTesting
+  final EventChannel readChannel;
 
   @override
   Future<String> searchUsb() async {
@@ -80,6 +87,10 @@ class MethodChannelFlutterDeviceSearcher extends FlutterDeviceSearcherPlatform {
 
     return result ?? Uint8List(0);
   }
+
+  @override
+  Stream<Uint8List> readStream() =>
+      readChannel.receiveBroadcastStream().map((event) => event as Uint8List);
 
   @override
   Future<bool> write(Uint8List data) async {

@@ -5,6 +5,7 @@ import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import androidx.annotation.VisibleForTesting
+import com.hoho.android.usbserial.driver.SerialInputOutputManager
 import io.flutter.plugin.common.EventChannel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -23,7 +24,12 @@ class UsbReadStreamHandler(
     override fun onListen(arguments: Any?, events: EventChannel.EventSink?) {
         coroutineScope.launch {
             try {
-
+                val usbIoManager = SerialInputOutputManager(usbSearcher?.port, (d) {
+                    Handler(Looper.getMainLooper()).post {
+                        events?.success(d)
+                    }
+                })
+                usbIoManager.start()
             } catch (ex: PluginException) {
                 Handler(Looper.getMainLooper()).post {
                     events?.error(ex.code.toString(), ex.message, ex.stackTraceToString())

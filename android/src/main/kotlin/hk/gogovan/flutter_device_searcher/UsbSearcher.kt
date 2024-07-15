@@ -37,7 +37,8 @@ class UsbSearcher(private val context: Context) {
     private var currentActivity: Activity? = null
     private var permissionIntent: PendingIntent? = null
 
-    private var port: UsbSerialPort? = null
+    var port: UsbSerialPort? = null
+        private set
 
     private var onPermission: () -> Unit = { }
 
