@@ -22,6 +22,8 @@ class UsbSearcher(private val context: Context) {
 
         private const val WRITE_WAIT_MILLIS = 30000
         private const val READ_WAIT_MILLIS = 5000
+
+        private const val BAUD_RATE = 9600
     }
 
     private val usbReceiver = object : BroadcastReceiver() {
@@ -35,8 +37,6 @@ class UsbSearcher(private val context: Context) {
     private var currentActivity: Activity? = null
     private var permissionIntent: PendingIntent? = null
 
-    private var driver: UsbSerialDriver? = null
-    private var connection: UsbDeviceConnection? = null
     private var port: UsbSerialPort? = null
 
     private var onPermission: () -> Unit = { }
@@ -60,7 +60,6 @@ class UsbSearcher(private val context: Context) {
     }
 
     suspend fun searchUsbDevices(): Map<Int, UsbDevice> {
-        val result = mutableMapOf<Int, UsbDevice>()
         var permissionPendingChecks = false
 
         val manager = context.getSystemService(UsbManager::class.java)
@@ -106,11 +105,6 @@ class UsbSearcher(private val context: Context) {
     }
 
     suspend fun connectDevice(deviceIndex: Int): Boolean {
-        if (connection != null) {
-            connection?.close()
-            connection = null
-        }
-
         val driver = searchedDrivers[deviceIndex]
         val manager = context.getSystemService(UsbManager::class.java)
 
@@ -121,13 +115,11 @@ class UsbSearcher(private val context: Context) {
             if (!manager.hasPermission(device)) {
                 return false
             }
-            connection = manager.openDevice(device)
-            if (connection == null) {
-                return false
-            }
+            val connection = manager.openDevice(device)
+
             port = driver.ports[0]
             port?.open(connection)
-            port?.setParameters(9600, 8, UsbSerialPort.STOPBITS_1, UsbSerialPort.PARITY_NONE)
+            port?.setParameters(BAUD_RATE, 8, UsbSerialPort.STOPBITS_1, UsbSerialPort.PARITY_NONE)
             return true
         }
     }
@@ -147,13 +139,11 @@ class UsbSearcher(private val context: Context) {
     }
 
     suspend fun isConnected(): Boolean {
-        val c = connection
-        return c != null
+        return port?.isOpen ?: false
     }
 
     suspend fun disconnectDevice() {
-        connection?.close()
-        connection = null
+        port?.close()
     }
     
 }
