@@ -39,6 +39,8 @@ class UsbReadStreamHandler(
 
     override fun onListen(arguments: Any?, events: EventChannel.EventSink?) {
         val channelListener = ReadChannelListener(events)
+
+        coroutineScope = CoroutineScope(Dispatchers.IO)
         coroutineScope.launch {
             try {
                 val usbIoManager = SerialInputOutputManager(usbSearcher?.port, channelListener)
