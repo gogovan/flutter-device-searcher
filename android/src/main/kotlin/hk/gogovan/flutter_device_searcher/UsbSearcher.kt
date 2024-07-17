@@ -15,6 +15,7 @@ import android.os.Build
 import com.hoho.android.usbserial.driver.UsbSerialProber
 import com.hoho.android.usbserial.driver.UsbSerialDriver
 import com.hoho.android.usbserial.driver.UsbSerialPort
+import java.io.IOException
 
 class UsbSearcher(private val context: Context) {
     companion object {
@@ -140,7 +141,17 @@ class UsbSearcher(private val context: Context) {
     }
 
     suspend fun isConnected(): Boolean {
-        return port?.isOpen ?: false
+        if (port?.isOpen != true) {
+            return false
+        }
+        try {
+            // Attempt to read control info to determine whether the connection is active.
+            port?.controlLines
+            return true
+        } catch (e: IOException) {
+            port?.close()
+            return false
+        }
     }
 
     suspend fun disconnectDevice() {
