@@ -15,6 +15,7 @@ import android.os.Build
 import com.hoho.android.usbserial.driver.UsbSerialProber
 import com.hoho.android.usbserial.driver.UsbSerialDriver
 import com.hoho.android.usbserial.driver.UsbSerialPort
+import java.io.IOException
 
 class UsbSearcher(private val context: Context) {
     companion object {
@@ -140,7 +141,24 @@ class UsbSearcher(private val context: Context) {
     }
 
     suspend fun isConnected(): Boolean {
-        return port?.isOpen ?: false
+        if (port?.isOpen != true) {
+            return false
+        }
+        try {
+            // Attempt to read control info to determine whether the connection is active.
+            // We don't need the result, but rather the call is successful or not. Unfortunately the
+            // library does not provide actual connection out of the box so this hack is used.
+            port?.controlLines
+            return true
+        } catch (e: IOException) {
+            // Actual testing reveals that once the USB is disconnected, this is not possible to
+            // reconnect on the same connection.
+            // May be an OS limitation since upon reconnection a permission dialog is shown, indicating
+            // OS has started a new connection for it.
+            // We close the connection manually for cleanup and avoid future confusion.
+            port?.close()
+            return false
+        }
     }
 
     suspend fun disconnectDevice() {

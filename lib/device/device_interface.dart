@@ -16,6 +16,10 @@ abstract class DeviceInterface<T extends DeviceSearchResult> {
   bool _connected = false;
 
   /// Whether the device has been connected.
+  ///
+  /// For USB, the connection is closed once the device has been found disconnected
+  /// when calling this method due to the OS no longer maintaining the connection once disconnected.
+  ///
   /// Implementors: This method only check if `connect()` is called and `disconnect()` has not been called.
   /// If there is a underlying connection to maintain, override this method to return the actual connection status,
   /// in conjunction to the state maintained by the DeviceInterface.
@@ -24,6 +28,9 @@ abstract class DeviceInterface<T extends DeviceSearchResult> {
 
   /// Return a stream that provide the status of the connection continuously.
   /// This should be in sync with `isConnected()` method.
+  ///
+  /// For USB, the connection is closed once the device has been found disconnected
+  /// when calling this method due to the OS no longer maintaining the connection once disconnected.
   @mustCallSuper
   Stream<bool> connectStateStream() => _connectedController.stream;
 
