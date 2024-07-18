@@ -86,37 +86,18 @@ class _MyAppState extends State<MyApp> {
                   .toList()
                   .asMap()
                   .entries
-                  .map((item) => Column(children: [
-                        Row(
-                          children: [
-                            Expanded(child: Text(item.value.toString())),
-                            ElevatedButton(
-                                onPressed: () => _connect(item.key),
-                                child: const Text('Connect')),
-                          ],
-                        ),
-                        Container(color: Colors.blue, height: 1)
-                      ])),
-              Row(children: [
-                SizedBox(
-                  width: 200,
-                  child: TextField(
-                    decoration: const InputDecoration(
-                      hintText: 'Interface Index',
+                  .map((item) =>
+                  Column(children: [
+                    Row(
+                      children: [
+                        Expanded(child: Text(item.value.toString())),
+                        ElevatedButton(
+                            onPressed: () => _connect(item.key),
+                            child: const Text('Connect')),
+                      ],
                     ),
-                    controller: indexController,
-                    keyboardType: TextInputType.number,
-                  ),
-                ),
-                ElevatedButton(
-                  onPressed: _setInterfaceIndex,
-                  child: const Text('Set Interface Index'),
-                ),
-                ElevatedButton(
-                  onPressed: _setEndpointIndex,
-                  child: const Text('Set Endpoint Index'),
-                )
-              ]),
+                    Container(color: Colors.blue, height: 1)
+                  ])),
               ElevatedButton(
                   onPressed: _disconnect, child: const Text('Disconnect')),
               Text(connectedResult),
@@ -126,11 +107,12 @@ class _MyAppState extends State<MyApp> {
               ...serviceList
                   .expand((element) => element.characteristics)
                   .toList()
-                  .map((item) => Column(
+                  .map((item) =>
+                  Column(
+                    children: [
+                      Row(
                         children: [
-                          Row(
-                            children: [
-                              Expanded(child: Text('''
+                          Expanded(child: Text('''
 Service ${item.serviceId}
 Characteristic ${item.characteristicId}
 Readable: ${item.isReadable}
@@ -139,18 +121,18 @@ Notifiable: ${item.isNotifiable}
 Writable w/ response: ${item.isWritableWithResponse}
 Writable w/o response: ${item.isWritableWithoutResponse}
                   ''')),
-                              ElevatedButton(
-                                  onPressed: () {
-                                    selectedServiceUuid = item.serviceId;
-                                    selectedCharacteristicUuid =
-                                        item.characteristicId;
-                                  },
-                                  child: Text('Use for R/W'))
-                            ],
-                          ),
-                          Container(color: Colors.blue, height: 1)
+                          ElevatedButton(
+                              onPressed: () {
+                                selectedServiceUuid = item.serviceId;
+                                selectedCharacteristicUuid =
+                                    item.characteristicId;
+                              },
+                              child: Text('Use for R/W'))
                         ],
-                      )),
+                      ),
+                      Container(color: Colors.blue, height: 1)
+                    ],
+                  )),
               Row(
                 children: [
                   SizedBox(
@@ -232,38 +214,10 @@ Writable w/o response: ${item.isWritableWithoutResponse}
     try {
       _searchStream =
           usbSearcher?.search().listen(cancelOnError: true, (event) {
-        setState(() {
-          searchedResult = event.toList();
-        });
-      });
-    } catch (ex) {
-      setState(() {
-        connectedResult = ex.toString();
-      });
-    }
-  }
-
-  Future<void> _setInterfaceIndex() async {
-    try {
-      final index = int.parse(indexController.text);
-      final success = await usbDevice?.setInterfaceIndex(index);
-      setState(() {
-        connectedResult = 'Set interface $index. Success: $success';
-      });
-    } catch (ex) {
-      setState(() {
-        connectedResult = ex.toString();
-      });
-    }
-  }
-
-  Future<void> _setEndpointIndex() async {
-    try {
-      final index = int.parse(indexController.text);
-      final success = await usbDevice?.setEndpointIndex(index);
-      setState(() {
-        connectedResult = 'Set endpoint $index. Success: $success';
-      });
+            setState(() {
+              searchedResult = event.toList();
+            });
+          });
     } catch (ex) {
       setState(() {
         connectedResult = ex.toString();
@@ -400,7 +354,6 @@ Writable w/o response: ${item.isWritableWithoutResponse}
       } else if (usbDevice != null) {
         await usbDevice?.write(
           Uint8List.fromList(writeController.text.codeUnits),
-          null,
         );
       }
     } catch (ex) {
@@ -437,15 +390,22 @@ Writable w/o response: ${item.isWritableWithoutResponse}
   void _readStream() {
     try {
       readStreamSubscription?.cancel();
-      readStreamSubscription = btDevice
-          ?.readAsStream(selectedServiceUuid.toString(),
-              selectedCharacteristicUuid.toString())
-          .listen((event) {
-        print('_readStream ${event.toString()}');
-        setState(() {
-          readStreamResult = String.fromCharCodes(event);
+      if (btDevice != null) {
+        readStreamSubscription = btDevice
+            ?.readAsStream(selectedServiceUuid.toString(),
+            selectedCharacteristicUuid.toString())
+            .listen((event) {
+          setState(() {
+            readStreamResult = String.fromCharCodes(event);
+          });
         });
-      });
+      } else if (usbDevice != null) {
+        readStreamSubscription = usbDevice?.readStream().listen((event) {
+          setState(() {
+            readStreamResult = String.fromCharCodes(event);
+          });
+        });
+      }
     } catch (ex) {
       setState(() {
         readStreamResult = ex.toString();

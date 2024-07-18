@@ -12,7 +12,16 @@ defaultConfig {
     // ...
 }
 ```
-2. Setup required permissions according to OS and technology:
+2. Add Jitpack in your `android/build.gradle` file
+```groovy
+allprojects {
+    repositories {
+        // ...
+        maven { url 'https://jitpack.io' }
+    }
+}
+```
+3. Setup required permissions according to OS and technology:
 
 ## Bluetooth
 ### Android

@@ -52,7 +52,15 @@ abstract class FlutterDeviceSearcherPlatform extends PlatformInterface {
     throw UnimplementedError('disconnect() has not been implemented.');
   }
 
-  Future<Uint8List> transfer(Uint8List? buffer, int? length) {
-    throw UnimplementedError('transfer() has not been implemented.');
+  Future<Uint8List> read(int? length) {
+    throw UnimplementedError('read() has not been implemented.');
+  }
+
+  Stream<Uint8List> readStream() {
+    throw UnimplementedError('readStream() has not been implemented.');
+  }
+
+  Future<bool> write(Uint8List data) {
+    throw UnimplementedError('write() has not been implemented.');
   }
 }

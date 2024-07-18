@@ -6,16 +6,23 @@ class MethodChannelFlutterDeviceSearcher extends FlutterDeviceSearcherPlatform {
   MethodChannelFlutterDeviceSearcher()
       : methodChannel = const MethodChannel(
           'hk.gogovan.flutter_device_searcher',
+        ),
+        readChannel = const EventChannel(
+          'hk.gogovan.flutter_device_searcher.usbRead',
         );
 
   @visibleForTesting
   MethodChannelFlutterDeviceSearcher.mocked(
     this.methodChannel,
+    this.readChannel,
   );
 
   /// The method channel used to interact with the native platform.
   @visibleForTesting
   final MethodChannel methodChannel;
+
+  @visibleForTesting
+  final EventChannel readChannel;
 
   @override
   Future<String> searchUsb() async {
@@ -29,7 +36,7 @@ class MethodChannelFlutterDeviceSearcher extends FlutterDeviceSearcherPlatform {
   Future<bool> connect(String deviceName) async {
     final result = await methodChannel.invokeMethod<bool>(
       'hk.gogovan.device_searcher.connectUsb',
-      <String, dynamic>{'deviceName': deviceName},
+      <String, dynamic>{'index': deviceName},
     );
 
     return result ?? false;
@@ -72,12 +79,26 @@ class MethodChannelFlutterDeviceSearcher extends FlutterDeviceSearcherPlatform {
   }
 
   @override
-  Future<Uint8List> transfer(Uint8List? buffer, int? length) async {
+  Future<Uint8List> read(int? length) async {
     final result = await methodChannel.invokeMethod<Uint8List>(
-      'hk.gogovan.device_searcher.transfer',
-      <String, dynamic>{'buffer': buffer, 'length': length},
+      'hk.gogovan.device_searcher.read',
+      <String, dynamic>{'length': length},
     );
 
     return result ?? Uint8List(0);
+  }
+
+  @override
+  Stream<Uint8List> readStream() =>
+      readChannel.receiveBroadcastStream().map((event) => event as Uint8List);
+
+  @override
+  Future<bool> write(Uint8List data) async {
+    final result = await methodChannel.invokeMethod<bool>(
+      'hk.gogovan.device_searcher.write',
+      <String, dynamic>{'data': data},
+    );
+
+    return result ?? false;
   }
 }

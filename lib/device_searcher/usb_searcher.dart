@@ -20,50 +20,27 @@ class UsbSearcher extends DeviceSearcherInterface<UsbResult> {
       }
       final devicesJson =
           await FlutterDeviceSearcherPlatform.instance.searchUsb();
-      final devicesObj = jsonDecode(devicesJson) as List<dynamic>;
-      final result = devicesObj
-          .map(
-            (e) => UsbResult(
-              deviceName: e['deviceName'] as String,
-              vendorId: e['vendorId'] as String?,
-              productId: e['productId'] as String?,
-              serialNumber: e['serialNumber'] as String?,
-              deviceClass: e['deviceClass'] as String?,
-              deviceSubclass: e['deviceSubclass'] as String?,
-              deviceProtocol: e['deviceProtocol'] as String?,
-              interfaces: (jsonDecode(e['interfaces']) as List<dynamic>?)
-                  ?.map(
-                    (e) => UsbInterfaceResult(
-                      interfaceClass: e['interfaceClass'] as String?,
-                      interfaceSubclass: e['interfaceSubclass'] as String?,
-                      interfaceProtocol: e['interfaceProtocol'] as String?,
-                      endpoints: (jsonDecode(e['endpoints']) as List<dynamic>?)
-                          ?.map(
-                            (e) => UsbEndpointResult(
-                              endpointNumber: int.tryParse(
-                                e['endpointNumber'] as String? ?? '',
-                              ),
-                              direction: e['direction'] as String?,
-                              type: e['type'] as String?,
-                              maxPacketSize: int.tryParse(
-                                e['maxPacketSize'] as String? ?? '',
-                              ),
-                              interval:
-                                  int.tryParse(e['interval'] as String? ?? ''),
-                            ),
-                          )
-                          .toList(),
-                    ),
-                  )
-                  .toList(),
-            ),
-          )
-          .toList();
+      final devicesObj = jsonDecode(devicesJson) as Map<String, dynamic>;
+      final result = devicesObj.map(
+        (k, e) => MapEntry(
+          k,
+          UsbResult(
+            index: int.parse(k),
+            deviceName: e['deviceName'] as String,
+            vendorId: e['vendorId'] as String?,
+            productId: e['productId'] as String?,
+            serialNumber: e['serialNumber'] as String?,
+            deviceClass: e['deviceClass'] as String?,
+            deviceSubclass: e['deviceSubclass'] as String?,
+            deviceProtocol: e['deviceProtocol'] as String?,
+          ),
+        ),
+      );
 
       if (result.isNotEmpty) {
         start = DateTime.now();
       }
-      yield result;
+      yield result.values.toList();
 
       await Future.delayed(const Duration(seconds: 1));
     }

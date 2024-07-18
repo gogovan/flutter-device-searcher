@@ -14,7 +14,8 @@ class UsbDevice extends DeviceInterface<UsbResult> {
 
   @override
   Future<bool> connectImpl(UsbResult inSearchResult) =>
-      FlutterDeviceSearcherPlatform.instance.connect(inSearchResult.deviceName);
+      FlutterDeviceSearcherPlatform.instance
+          .connect(inSearchResult.index.toString());
 
   @override
   Future<bool> disconnectImpl() =>
@@ -27,8 +28,11 @@ class UsbDevice extends DeviceInterface<UsbResult> {
       FlutterDeviceSearcherPlatform.instance.setEndpointIndex(endpointIndex);
 
   Future<Uint8List> read(int? length) =>
-      FlutterDeviceSearcherPlatform.instance.transfer(null, length);
+      FlutterDeviceSearcherPlatform.instance.read(length);
 
-  Future<Uint8List> write(Uint8List buffer, int? length) =>
-      FlutterDeviceSearcherPlatform.instance.transfer(buffer, length);
+  Stream<Uint8List> readStream() =>
+      FlutterDeviceSearcherPlatform.instance.readStream();
+
+  Future<bool> write(Uint8List buffer) =>
+      FlutterDeviceSearcherPlatform.instance.write(buffer);
 }
