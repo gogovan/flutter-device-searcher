@@ -164,6 +164,7 @@ class UsbSearcher(private val context: Context) {
 
     suspend fun disconnectDevice() {
         port?.close()
+        port = null
     }
     
 }
