@@ -147,7 +147,7 @@ class UsbSearcher(private val context: Context) {
         try {
             // Attempt to read control info to determine whether the connection is active.
             // We don't need the result, but rather the call is successful or not. Unfortunately the
-            // library does not provide actual connection out of the box so this hack is used.
+            // library does not provide actual connection test out of the box so this hack is used.
             port?.controlLines
             return true
         } catch (e: IOException) {
@@ -157,6 +157,7 @@ class UsbSearcher(private val context: Context) {
             // OS has started a new connection for it.
             // We close the connection manually for cleanup and avoid future confusion.
             port?.close()
+            port = null
             return false
         }
     }
