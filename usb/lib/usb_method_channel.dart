@@ -1,9 +1,11 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_device_searcher/flutter_device_searcher_platform_interface.dart';
-import 'package:meta/meta.dart';
 
-class MethodChannelFlutterDeviceSearcher extends FlutterDeviceSearcherPlatform {
-  MethodChannelFlutterDeviceSearcher()
+import 'usb_platform_interface.dart';
+
+/// An implementation of [UsbPlatform] that uses method channels.
+class MethodChannelUsb extends UsbPlatform {
+  MethodChannelUsb()
       : methodChannel = const MethodChannel(
           'hk.gogovan.flutter_device_searcher',
         ),
@@ -12,7 +14,7 @@ class MethodChannelFlutterDeviceSearcher extends FlutterDeviceSearcherPlatform {
         );
 
   @visibleForTesting
-  MethodChannelFlutterDeviceSearcher.mocked(
+  MethodChannelUsb.mocked(
     this.methodChannel,
     this.readChannel,
   );

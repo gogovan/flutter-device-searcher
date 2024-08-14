@@ -1,30 +1,27 @@
 import 'dart:typed_data';
 
-import 'package:flutter_device_searcher/flutter_device_searcher_method_channel.dart';
-import 'package:meta/meta.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
-abstract class FlutterDeviceSearcherPlatform extends PlatformInterface {
-  /// Constructs a FlutterLabelPrinterPlatform.
-  FlutterDeviceSearcherPlatform() : super(token: token);
+import 'usb_method_channel.dart';
 
-  @visibleForTesting
-  // ignore: no-object-declaration, needed, directly from Flutter template code.
-  static final Object token = Object();
+abstract class UsbPlatform extends PlatformInterface {
+  /// Constructs a UsbPlatform.
+  UsbPlatform() : super(token: _token);
 
-  static FlutterDeviceSearcherPlatform _instance =
-      MethodChannelFlutterDeviceSearcher();
+  static final Object _token = Object();
 
-  /// The default instance of [FlutterDeviceSearcherPlatform] to use.
+  static UsbPlatform _instance = MethodChannelUsb();
+
+  /// The default instance of [UsbPlatform] to use.
   ///
-  /// Defaults to [MethodChannelFlutterDeviceSearcher].
-  static FlutterDeviceSearcherPlatform get instance => _instance;
+  /// Defaults to [MethodChannelUsb].
+  static UsbPlatform get instance => _instance;
 
   /// Platform-specific implementations should set this with their own
-  /// platform-specific class that extends [FlutterDeviceSearcherPlatform] when
+  /// platform-specific class that extends [UsbPlatform] when
   /// they register themselves.
-  static set instance(FlutterDeviceSearcherPlatform instance) {
-    PlatformInterface.verifyToken(instance, token);
+  static set instance(UsbPlatform instance) {
+    PlatformInterface.verifyToken(instance, _token);
     _instance = instance;
   }
 
