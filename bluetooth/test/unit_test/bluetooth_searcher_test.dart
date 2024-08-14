@@ -3,7 +3,7 @@ import 'dart:typed_data';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_device_searcher_bluetooth/bluetooth_searcher.dart';
 import 'package:flutter_device_searcher/exception/permission_denied_error.dart';
-import 'package:flutter_device_searcher/permission_wrapper.dart';
+import 'permission_wrapper.dart';
 import 'package:flutter_device_searcher_bluetooth/bluetooth_result.dart';
 import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
 import 'package:flutter_test/flutter_test.dart';

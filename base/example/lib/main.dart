@@ -3,15 +3,14 @@ import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:logging/logging.dart';
-import 'package:flutter_device_searcher/device/bluetooth/bluetooth_device.dart';
-import 'package:flutter_device_searcher/device/bluetooth/bluetooth_service.dart';
-import 'package:flutter_device_searcher/device/usb/usb_device.dart';
-import 'package:flutter_device_searcher/device_searcher/bluetooth_searcher.dart';
-import 'package:flutter_device_searcher/device_searcher/usb_searcher.dart';
-import 'package:flutter_device_searcher/search_result/bluetooth_result.dart';
+import 'package:flutter_device_searcher_bluetooth/bluetooth_device.dart';
+import 'package:flutter_device_searcher_bluetooth/bluetooth_service.dart';
+import 'package:flutter_device_searcher_usb/usb_device.dart';
+import 'package:flutter_device_searcher_bluetooth/bluetooth_searcher.dart';
+import 'package:flutter_device_searcher_usb/usb_searcher.dart';
+import 'package:flutter_device_searcher_bluetooth/bluetooth_result.dart';
 import 'package:flutter_device_searcher/search_result/device_search_result.dart';
-import 'package:flutter_device_searcher/search_result/usb_result.dart';
-import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
+import 'package:flutter_device_searcher_usb/usb_result.dart';
 
 void main() {
   runApp(const MyApp());
@@ -86,18 +85,17 @@ class _MyAppState extends State<MyApp> {
                   .toList()
                   .asMap()
                   .entries
-                  .map((item) =>
-                  Column(children: [
-                    Row(
-                      children: [
-                        Expanded(child: Text(item.value.toString())),
-                        ElevatedButton(
-                            onPressed: () => _connect(item.key),
-                            child: const Text('Connect')),
-                      ],
-                    ),
-                    Container(color: Colors.blue, height: 1)
-                  ])),
+                  .map((item) => Column(children: [
+                        Row(
+                          children: [
+                            Expanded(child: Text(item.value.toString())),
+                            ElevatedButton(
+                                onPressed: () => _connect(item.key),
+                                child: const Text('Connect')),
+                          ],
+                        ),
+                        Container(color: Colors.blue, height: 1)
+                      ])),
               ElevatedButton(
                   onPressed: _disconnect, child: const Text('Disconnect')),
               Text(connectedResult),
@@ -107,12 +105,11 @@ class _MyAppState extends State<MyApp> {
               ...serviceList
                   .expand((element) => element.characteristics)
                   .toList()
-                  .map((item) =>
-                  Column(
-                    children: [
-                      Row(
+                  .map((item) => Column(
                         children: [
-                          Expanded(child: Text('''
+                          Row(
+                            children: [
+                              Expanded(child: Text('''
 Service ${item.serviceId}
 Characteristic ${item.characteristicId}
 Readable: ${item.isReadable}
@@ -121,18 +118,18 @@ Notifiable: ${item.isNotifiable}
 Writable w/ response: ${item.isWritableWithResponse}
 Writable w/o response: ${item.isWritableWithoutResponse}
                   ''')),
-                          ElevatedButton(
-                              onPressed: () {
-                                selectedServiceUuid = item.serviceId;
-                                selectedCharacteristicUuid =
-                                    item.characteristicId;
-                              },
-                              child: Text('Use for R/W'))
+                              ElevatedButton(
+                                  onPressed: () {
+                                    selectedServiceUuid = item.serviceId;
+                                    selectedCharacteristicUuid =
+                                        item.characteristicId;
+                                  },
+                                  child: Text('Use for R/W'))
+                            ],
+                          ),
+                          Container(color: Colors.blue, height: 1)
                         ],
-                      ),
-                      Container(color: Colors.blue, height: 1)
-                    ],
-                  )),
+                      )),
               Row(
                 children: [
                   SizedBox(
@@ -214,10 +211,10 @@ Writable w/o response: ${item.isWritableWithoutResponse}
     try {
       _searchStream =
           usbSearcher?.search().listen(cancelOnError: true, (event) {
-            setState(() {
-              searchedResult = event.toList();
-            });
-          });
+        setState(() {
+          searchedResult = event.toList();
+        });
+      });
     } catch (ex) {
       setState(() {
         connectedResult = ex.toString();
@@ -393,7 +390,7 @@ Writable w/o response: ${item.isWritableWithoutResponse}
       if (btDevice != null) {
         readStreamSubscription = btDevice
             ?.readAsStream(selectedServiceUuid.toString(),
-            selectedCharacteristicUuid.toString())
+                selectedCharacteristicUuid.toString())
             .listen((event) {
           setState(() {
             readStreamResult = String.fromCharCodes(event);

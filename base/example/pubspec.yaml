@@ -38,7 +38,7 @@ dependencies:
   flutter_device_searcher:
     git:
       url: https://github.com/gogovan/flutter-device-searcher.git
-      path: bluetooth
+      path: base
       ref: feat/EPT-3926
   flutter_device_searcher_bluetooth:
     git:

@@ -84,6 +84,9 @@ app.*.map.json
 **/*.freezed.*
 **/*.mocks.*
 
+Generated.xcconfig
+flutter_export_environment.sh
+
 # dart code metrics analytis report
 metrics-results/
 coverage/

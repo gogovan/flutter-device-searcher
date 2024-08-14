@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter_device_searcher/device_searcher/device_searcher_interface.dart';
 import 'package:flutter_device_searcher/exception/permission_denied_error.dart';
-import 'package:flutter_device_searcher/permission_wrapper.dart';
+import 'permission_wrapper.dart';
 import 'bluetooth_result.dart';
 import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
 import 'package:meta/meta.dart';
