@@ -2,8 +2,8 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter_device_searcher/device_searcher/device_searcher_interface.dart';
-import 'package:flutter_device_searcher/flutter_device_searcher_platform_interface.dart';
-import 'package:flutter_device_searcher/search_result/usb_result.dart';
+import 'package:flutter_device_searcher_usb/usb_platform_interface.dart';
+import 'usb_result.dart';
 
 class UsbSearcher extends DeviceSearcherInterface<UsbResult> {
   @override
@@ -18,8 +18,7 @@ class UsbSearcher extends DeviceSearcherInterface<UsbResult> {
         onTimeout?.call();
         break;
       }
-      final devicesJson =
-          await FlutterDeviceSearcherPlatform.instance.searchUsb();
+      final devicesJson = await UsbPlatform.instance.searchUsb();
       final devicesObj = jsonDecode(devicesJson) as Map<String, dynamic>;
       final result = devicesObj.map(
         (k, e) => MapEntry(
