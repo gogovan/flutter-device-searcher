@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:flutter_device_searcher/device/bluetooth/bluetooth_service.dart';
+import 'bluetooth_service.dart';
 import 'package:flutter_device_searcher/device/device_interface.dart';
 import 'package:flutter_device_searcher/device_searcher/bluetooth_searcher.dart';
 import 'package:flutter_device_searcher/exception/device_connection_error.dart';
