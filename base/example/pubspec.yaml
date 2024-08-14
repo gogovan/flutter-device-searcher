@@ -50,6 +50,7 @@ dependencies:
       url: https://github.com/gogovan/flutter-device-searcher.git
       path: usb
       ref: feat/EPT-3926
+  logging: ^1.2.0
 
 dev_dependencies:
   flutter_test:
