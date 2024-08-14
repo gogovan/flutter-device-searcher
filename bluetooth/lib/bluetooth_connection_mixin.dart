@@ -2,9 +2,9 @@ import 'dart:async';
 
 import 'bluetooth_device.dart';
 import 'bluetooth_service.dart';
-import 'package:flutter_device_searcher/device_searcher/bluetooth_searcher.dart';
+import 'bluetooth_searcher.dart';
 import 'package:flutter_device_searcher/exception/device_connection_error.dart';
-import 'package:flutter_device_searcher/search_result/bluetooth_result.dart';
+import '/bluetooth_result.dart';
 import 'package:meta/meta.dart';
 
 mixin BluetoothConnectionMixin {
