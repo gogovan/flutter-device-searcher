@@ -1,7 +1,6 @@
 name: flutter_device_searcher
 description: A new Flutter package project.
 version: 0.0.1
-homepage:
 
 environment:
   sdk: '>=2.19.6 <3.0.0'
@@ -17,17 +16,11 @@ dependencies:
   rxdart: ^0.27.7
   meta: ^1.8.0
 
-  flutter_reactive_ble: ^5.0.3
-
-  permission_handler: ^10.3.0
-  build_runner: ^2.4.6
-
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^2.0.0
-  mockito: ^5.4.0
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

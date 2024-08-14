@@ -5,7 +5,8 @@
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'dart:async' as _i4;
 
-import 'package:flutter_device_searcher/permission_wrapper.dart' as _i6;
+import 'package:flutter_device_searcher_bluetooth/permission_wrapper.dart'
+    as _i6;
 import 'package:flutter_reactive_ble/src/discovered_devices_registry.dart'
     as _i2;
 import 'package:flutter_reactive_ble/src/reactive_ble.dart' as _i3;

@@ -5,10 +5,11 @@
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'dart:async' as _i7;
 
-import 'package:flutter_device_searcher/permission_wrapper.dart' as _i3;
 import 'package:flutter_device_searcher_bluetooth/bluetooth_result.dart' as _i8;
 import 'package:flutter_device_searcher_bluetooth/bluetooth_searcher.dart'
     as _i6;
+import 'package:flutter_device_searcher_bluetooth/permission_wrapper.dart'
+    as _i3;
 import 'package:flutter_reactive_ble/flutter_reactive_ble.dart' as _i2;
 import 'package:flutter_reactive_ble/src/discovered_devices_registry.dart'
     as _i5;
