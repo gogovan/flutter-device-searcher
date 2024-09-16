@@ -18,7 +18,8 @@ class UsbDevice extends DeviceInterface<UsbResult> {
         [
           super.connectStateStream(),
           Stream.periodic(const Duration(seconds: 1))
-              .asyncMap((event) => isConnected()),
+              .asyncMap((event) => isConnected())
+              .asBroadcastStream(),
         ],
         (values) => values[0] && values[1],
       );
