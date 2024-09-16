@@ -57,11 +57,21 @@ void main() {
     tearDown(device.dispose);
 
     test('connect/disconnect success', () async {
+      var i = 0;
+      final stream = device.connectStateStream().listen((d) {
+        if (i == 0) {
+          expect(d, true);
+        } else {
+          expect(d, false);
+        }
+        ++i;
+      });
       expect(await device.connect(), true);
       expect(await device.isConnected(), true);
       await device.disconnect();
       expect(await device.isConnected(), false);
-      expect(await device.connectStateStream().take(2).toList(), [true, false]);
+      await stream.cancel();
+      expect(i, 2);
     });
   });
 
@@ -92,14 +102,17 @@ void main() {
     tearDown(device.dispose);
 
     test('connect/disconnect success', () async {
+      var i = 0;
+      final stream = device.connectStateStream().listen((d) {
+        expect(d, false);
+        ++i;
+      });
       expect(await device.connect(), true);
       expect(await device.isConnected(), false);
       await device.disconnect();
       expect(await device.isConnected(), false);
-      expect(
-        await device.connectStateStream().take(2).toList(),
-        [false, false],
-      );
+      await stream.cancel();
+      expect(i, 2);
     });
   });
 

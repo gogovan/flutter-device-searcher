@@ -7,7 +7,8 @@ import 'package:flutter_device_searcher/search_result/device_search_result.dart'
 abstract class DeviceInterface<T extends DeviceSearchResult> {
   DeviceInterface(this.searchResult);
 
-  final StreamController<bool> _connectedController = StreamController();
+  final StreamController<bool> _connectedController =
+      StreamController.broadcast();
 
   /// DeviceSearchResult indicating the device this instance is representing.
   @protected
