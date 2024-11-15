@@ -3,7 +3,6 @@ import 'dart:typed_data';
 import 'package:flutter_device_searcher/device/device_interface.dart';
 import 'package:flutter_device_searcher/flutter_device_searcher_platform_interface.dart';
 import 'package:flutter_device_searcher/search_result/usb_result.dart';
-import 'package:rxdart/streams.dart';
 
 class UsbDevice extends DeviceInterface<UsbResult> {
   UsbDevice(super.device);
@@ -14,15 +13,15 @@ class UsbDevice extends DeviceInterface<UsbResult> {
       await FlutterDeviceSearcherPlatform.instance.isConnected();
 
   @override
-  Stream<bool> connectStateStream() => CombineLatestStream(
-        [
-          super.connectStateStream(),
-          Stream.periodic(const Duration(seconds: 1))
-              .asyncMap((event) => isConnected())
-              .asBroadcastStream(),
-        ],
-        (values) => values[0] && values[1],
-      );
+  Stream<bool> connectStateStream() {
+    super.connectStateStream();
+
+    final periodicStream = Stream.periodic(const Duration(seconds: 1))
+        .asyncMap((event) => isConnected())
+        .asBroadcastStream()
+        .map((value) => value);
+    return periodicStream;
+  }
 
   @override
   Future<bool> connectImpl(UsbResult inSearchResult) =>
