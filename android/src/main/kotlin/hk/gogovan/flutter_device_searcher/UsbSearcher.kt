@@ -49,9 +49,17 @@ class UsbSearcher(private val context: Context) {
     fun setCurrentActivity(activity: Activity) {
         currentActivity = activity
 
+        // The intent must be explicit (setPackage) or the permission result
+        // broadcast is silently dropped on apps targeting Android 14+ (API 34),
+        // and mutable so the system can attach the permission result extras.
         permissionIntent = PendingIntent.getBroadcast(
-            activity, 0, Intent(ACTION_USB_PERMISSION),
-            PendingIntent.FLAG_IMMUTABLE
+            activity, 0,
+            Intent(ACTION_USB_PERMISSION).setPackage(activity.packageName),
+            if (Build.VERSION.SDK_INT >= 31) {
+                PendingIntent.FLAG_MUTABLE
+            } else {
+                0
+            }
         )
         val filter = IntentFilter(ACTION_USB_PERMISSION)
         if (Build.VERSION.SDK_INT >= 33) {
@@ -62,26 +70,26 @@ class UsbSearcher(private val context: Context) {
     }
 
     suspend fun searchUsbDevices(): Map<Int, UsbDevice> {
-        var permissionPendingChecks = false
-
         val manager = context.getSystemService(UsbManager::class.java)
         val availableDrivers = UsbSerialProber.getDefaultProber().findAllDrivers(manager)
         if (availableDrivers.isEmpty()) {
             return emptyMap()
         }
 
+        // Non-blocking permission handling: devices without permission trigger
+        // a permission request and are simply omitted from this result. The
+        // Dart side polls this method periodically, so devices are picked up
+        // on a later call once permission is granted. The previous
+        // implementation blocked in a delay loop until the permission result
+        // broadcast arrived, which hung the search stream forever when the
+        // broadcast was not delivered.
         val map = mutableMapOf<Int, UsbSerialDriver>()
         availableDrivers.forEachIndexed { index, driver ->
-            permissionPendingChecks = true
-            checkPermission(driver) { granted, inDevice ->
-                if (inDevice != null && granted) {
-                    map[index] = driver
-                }
-                permissionPendingChecks = false
-            }
-
-            while (permissionPendingChecks) {
-                kotlinx.coroutines.delay(100)
+            val device = driver.device
+            if (manager.hasPermission(device)) {
+                map[index] = driver
+            } else {
+                requestPermission(device)
             }
         }
 
@@ -90,20 +98,19 @@ class UsbSearcher(private val context: Context) {
         return map.mapValues { it.value.device }
     }
 
-    private fun checkPermission(driver: UsbSerialDriver, onPerm: (Boolean, UsbDevice?) -> Unit): Boolean {
-        val manager = context.getSystemService(UsbManager::class.java)
-        val device = driver.device
+    private var permissionRequestPending = false
 
-        return if (manager.hasPermission(device)) {
-            onPerm(true, device)
-            true
-        } else {
-            onPermission = {
-                onPerm(manager.hasPermission(device), device)
-            }
-            manager.requestPermission(device, permissionIntent)
-            false
+    private fun requestPermission(device: UsbDevice) {
+        val intent = permissionIntent ?: return
+        if (permissionRequestPending) return
+
+        permissionRequestPending = true
+        onPermission = {
+            permissionRequestPending = false
         }
+
+        val manager = context.getSystemService(UsbManager::class.java)
+        manager.requestPermission(device, intent)
     }
 
     suspend fun connectDevice(deviceIndex: Int): Boolean {
